@@ -59,9 +59,12 @@ xPatch = [(1:H)/frequency flip((1:H)/frequency)];
 yPatch = [lower_bound' flip(upper_bound)'];
 patch(xPatch, yPatch, 'r', 'FaceAlpha', 0.1, 'EdgeColor', 'none');
 
+ylabel('Interest rates, in percent', 'FontSize', 14);
+xlabel('Maturity, in years', 'FontSize', 14);
+
 legend('Real rates', 'Nominal rates',...
     '+/- 1 std dev','+/- 1 std dev',...
-    'Location', 'best', 'FontSize', 12);
+    'Location', 'northwest', 'FontSize', 12);
 
 
 % Save figure in EPS format

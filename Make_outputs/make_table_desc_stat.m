@@ -16,7 +16,7 @@ maxValues = max(Data_StateSpace.dataset);
 
 % detect when variable become available:
 nb_var = min(size(Data_StateSpace.dataset));
-dates_start = cell(nb_var,1);
+dates_start = strings(nb_var,1);
 for i = 1:nb_var
     dates_start(i) =  datestr(dates(find(~isnan(Data_StateSpace.dataset(:,i)), 1)));
 end
@@ -30,14 +30,15 @@ tableContent = [Data_StateSpace.names_of_variables; ...
                 cellfun(@num2str, num2cell(maxValues), 'UniformOutput', false)];
 
 % Create LaTeX table
-latexTable = sprintf('\\begin{tabular}{lrrrr} \\hline ');
-latexTable = [latexTable 'Variable & Mean & Std. Dev. & Min & Max \\ \hline '];
+latexTable = sprintf('\\begin{tabular}{lrrrrr} \\hline ');
+latexTable = [latexTable 'Variable & Mean & Std. Dev. & Min & Max & First date \\ \hline '];
 
 for row = 1:size(tableContent, 2)
     latexTable = [latexTable tableContent{1, row}];
     for col = 2:size(tableContent,1)
     latexTable = [latexTable ' & $' sprintf('%.2f',str2num(tableContent{col, row})) '$'];
     end
+    latexTable = [latexTable dates_start(row)];
     latexTable = [latexTable ' \\ '];
 end
 

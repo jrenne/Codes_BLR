@@ -20,26 +20,28 @@ end
 latexTable = [latexTable ' \\ \hline '];
 
 for row = 1:size(rowNames, 1)
-    latexTable = [latexTable rowNames{row}];
-    for col = 1:size(colNames,2)
-        if col < size(colNames,2) % not the last entry
-            if abs(M{row, col}) < 1
-                Format = '%.4f';
-            elseif abs(M{row, col}) >= 100
-                Format = '%.0f';
-            else
-                Format = '%.2f';
+    if M{row, max(size(colNames))} > 0
+        latexTable = [latexTable rowNames{row}];
+        for col = 1:size(colNames,2)
+            if col < size(colNames,2) % not the last entry
+                if abs(M{row, col}) < 1
+                    Format = '%.4f';
+                elseif abs(M{row, col}) >= 100
+                    Format = '%.0f';
+                else
+                    Format = '%.2f';
+                end
+            else % last entry of column (i.e. weight)
+                if abs(M{row, col}) < 1
+                    Format = '%.2f';
+                else
+                    Format = '%.0f';
+                end
             end
-        else % last entry of column (i.e. weight)
-            if abs(M{row, col}) < 1
-                Format = '%.2f';
-            else
-                Format = '%.0f';
-            end
+            latexTable = [latexTable ' & $' sprintf(Format,M{row, col}) '$'];
         end
-        latexTable = [latexTable ' & $' sprintf(Format,M{row, col}) '$'];
+        latexTable = [latexTable ' \\ '];
     end
-    latexTable = [latexTable ' \\ '];
 end
 
 latexTable = [latexTable '\hline \end{tabular}'];
