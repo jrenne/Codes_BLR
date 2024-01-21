@@ -38,7 +38,7 @@ for row = 1:size(tableContent, 2)
     for col = 2:size(tableContent,1)
     latexTable = [latexTable ' & $' sprintf('%.2f',str2num(tableContent{col, row})) '$'];
     end
-    latexTable = [latexTable dates_start(row)];
+    latexTable = [latexTable ' & ' extractAfter(dates_start(row),"01-")];
     latexTable = [latexTable ' \\ '];
 end
 
