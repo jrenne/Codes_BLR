@@ -1,6 +1,25 @@
 % =========================================================================
-% Figure illustrating the hysteresis effect
+% Figure showing Term Premiums
 % =========================================================================
+
+% Prepare the state space model:
+[StateSpace,xi_00,P_00,~,~,~,~,~,~,...
+    eta0r,eta1r,eta0rn,eta1rn] = prepare_State_Space(model_sol,Data_StateSpace);
+
+% Employ Kalman filter:
+[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
+%[all_xi_tt,all_P_tt] = kalman_smoother(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
+
+% Plot fit of measured variables:
+T = size(Data_StateSpace.dataset,1);
+n_X = size(model_sol.PhiQ,1);
+n_Z = size(model_sol.Phi_Z,1);
+n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
+
+X  = all_xi_tt(:,1:n_X);
+Z  = all_xi_tt(:,(n_X+1):(n_X+n_Z));
+XX = all_xi_tt(:,(n_X+n_Z+1):end);
+
 
 [X_TP,TXT_TP,~] = xlsread('Data/TermPremiaUSForCheck.xlsx','TP_Comparison_US');
 TP_sel = [4,5,8,9]; % TP_05y_ACM, TP_05y_KW, TP_10y_ACM, TP_10y_KW

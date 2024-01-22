@@ -170,7 +170,7 @@ M = print_moments(sub_parameters,model_sol,indic_disp);
 %plots_simul;
 
 % Plot fit obtained with Kalman filter:
-plot_KF;
+% plot_KF;
 
 
 %Prepare figures: ---------------------------------------------------------
@@ -188,3 +188,4 @@ make_figure_IRF; % Impulse response functions
 make_table_moments;
 make_table_desc_stat;
 make_table_param;
+make_table_decompTP;

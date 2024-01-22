@@ -2,41 +2,110 @@
 % Table showing decomposition of term premiums variance
 % =========================================================================
 
+Format = '%0.2f';
+
 maturities_in_year = [2;5;10];
 H = max(frequency*maturities_in_year);
 
-% Compute moments of Y:
-H = 1;
-[E,V,A1,B1,~,~,~,BH,~,~] = compute_EV(model_sol,H);
+param2set2zero = {'sigma_w','sigma_k'};
 
-% Compute uncond yield curves:
-max_H = 10;
-H = max_H * frequency;
-[~,~,A4r,B4r] = compute_AB(model_sol,H);
-[~,~,~,~,A4rn,B4rn,C4rn,D4rn] = compute_AB_nominal(model_sol,H);
-
-loadings4r  = frequency * [B4r;0*C4rn;0*D4rn];
-loadings4rn = frequency * [B4rn;C4rn;D4rn];
-constant4r  = frequency * A4r;
-constant4rn = frequency * A4rn;
-
-% Under Expectation Hypothesis:
-[APr,BPr,APrn,BPrn] = compute_AB_real_nom_P(model_sol,H,...
-    eta0r,eta1r,eta0rn,eta1rn,A1,B1);
-loadings4r_P  = frequency * BPr;
-loadings4rn_P = frequency * BPrn;
-constant4r_P  = frequency * A4r;
-constant4rn = frequency * A4rn;
+% Baseline case:
+[uncond_r,uncond_rn,uncond_TPr,uncond_TPrn,uncond_IRP,...
+    all_stdv_r,all_stdv_rn,all_stdv_TPr,all_stdv_TPrn,all_stdv_IRP] =...
+    compute_uncond_yds_TP(model_sol,H);
 
 
 
-% Compute specification of rates under Expectation Hypothesis (EH):
-[E,V,A1,B1] = compute_EV(model_sol,1); % needed to compute expectations
+% Create LaTeX table
 
-% Compute model-implied yields:
-real_yields = 100 * frequency * (ones(T,1)*A4r + X * B4r);
-nom_yields  = 100 * frequency * (ones(T,1)*A4rn + X * B4rn + Z * C4rn + XX * D4rn);
+nb_maturity = max(size(maturities_in_year));
+latexTable = sprintf('\\begin{tabular}{cc');
+for i = 1:(3*nb_maturity)
+    latexTable = [latexTable 'c'];
+end
+latexTable = [latexTable '} \hline '];
 
-% Compute model-implied yields under EH:
-real_yields_P = 100 * frequency * (ones(T,1)*APr + all_xi_tt * BPr);
-nom_yields_P  = 100 * frequency * (ones(T,1)*APrn + all_xi_tt * BPrn);
+latexTable = [latexTable '&\multicolumn{' num2str(nb_maturity) '}{c}{Nominal T.P.}'...
+    '&\multicolumn{' num2str(nb_maturity) '}{c}{Real T.P.}'...
+    '&\multicolumn{' num2str(nb_maturity) '}{c}{Inflatiob R.P.}'...
+    ];
+latexTable = [latexTable '\\ \hline '];
+
+str_maturities = [num2str(maturities_in_year(1)) ' yrs'];
+for i = 2:nb_maturity
+    str_maturities = [str_maturities '& ' num2str(maturities_in_year(i)) ' yrs'];
+end
+
+latexTable = [latexTable '&' str_maturities '&' str_maturities '&' str_maturities '\\ \hline '];
+
+% Baseline term premiums:
+latexTable = [latexTable 'Baseline '];
+% Nominal:
+for i = 1:nb_maturity
+    latexTable = [latexTable ' & ' sprintf(Format,...
+        all_stdv_TPrn(frequency * maturities_in_year(i)))];
+end
+% Real:
+for i = 1:nb_maturity
+    latexTable = [latexTable ' & ' sprintf(Format,...
+        all_stdv_TPr(frequency * maturities_in_year(i)))];
+end
+% Inflation:
+for i = 1:nb_maturity
+    latexTable = [latexTable ' & ' sprintf(Format,...
+        all_stdv_IRP(frequency * maturities_in_year(i)))];
+end
+
+latexTable = [latexTable ' \\ '];
+
+
+for(iii = 1:max(size(param2set2zero)))
+
+    % first entry of line:
+    indic_param = find(strcmp(model_sol.names_param,param2set2zero(iii)));
+    name_latex = model_sol.names_param_Latex{indic_param};
+    latexTable = [latexTable '$' erase(name_latex,'$') '=0$' ];
+
+    % Mofify model and compute TPs:
+    model_sol_new = model_sol;
+    model_sol_new.param(indic_param) = -10;
+    model_sol_new     = make_model_sol(model_sol_new);
+
+    % Compute term premiums:
+    [uncond_r_new,uncond_rn_new,uncond_TPr_new,uncond_TPrn_new,uncond_IRP_new,...
+        all_stdv_r_new,all_stdv_rn_new,all_stdv_TPr_new,all_stdv_TPrn_new,all_stdv_IRP_new] =...
+        compute_uncond_yds_TP(model_sol_new,H);
+
+    % Nominal:
+    for i = 1:nb_maturity
+        latexTable = [latexTable ' & ' sprintf(Format,...
+            all_stdv_TPrn_new(frequency * maturities_in_year(i)))];
+    end
+    % Real:
+    for i = 1:nb_maturity
+        latexTable = [latexTable ' & ' sprintf(Format,...
+            all_stdv_TPr_new(frequency * maturities_in_year(i)))];
+    end
+    % Inflation:
+    for i = 1:nb_maturity
+        latexTable = [latexTable ' & ' sprintf(Format,...
+            all_stdv_IRP_new(frequency * maturities_in_year(i)))];
+    end
+
+    latexTable = [latexTable ' \\ '];
+
+end
+
+latexTable = [latexTable '\hline \end{tabular}'];
+
+
+% Save LaTeX table to a file
+latexFileName = 'Tables/table_decompTP.tex';
+fid = fopen(latexFileName, 'w');
+fprintf(fid, '%s', latexTable);
+fclose(fid);
+
+disp(['LaTeX table of descriptive statistics saved as ' latexFileName]);
+
+
+
