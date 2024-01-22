@@ -1,0 +1,42 @@
+% =========================================================================
+% Table showing decomposition of term premiums variance
+% =========================================================================
+
+maturities_in_year = [2;5;10];
+H = max(frequency*maturities_in_year);
+
+% Compute moments of Y:
+H = 1;
+[E,V,A1,B1,~,~,~,BH,~,~] = compute_EV(model_sol,H);
+
+% Compute uncond yield curves:
+max_H = 10;
+H = max_H * frequency;
+[~,~,A4r,B4r] = compute_AB(model_sol,H);
+[~,~,~,~,A4rn,B4rn,C4rn,D4rn] = compute_AB_nominal(model_sol,H);
+
+loadings4r  = frequency * [B4r;0*C4rn;0*D4rn];
+loadings4rn = frequency * [B4rn;C4rn;D4rn];
+constant4r  = frequency * A4r;
+constant4rn = frequency * A4rn;
+
+% Under Expectation Hypothesis:
+[APr,BPr,APrn,BPrn] = compute_AB_real_nom_P(model_sol,H,...
+    eta0r,eta1r,eta0rn,eta1rn,A1,B1);
+loadings4r_P  = frequency * BPr;
+loadings4rn_P = frequency * BPrn;
+constant4r_P  = frequency * A4r;
+constant4rn = frequency * A4rn;
+
+
+
+% Compute specification of rates under Expectation Hypothesis (EH):
+[E,V,A1,B1] = compute_EV(model_sol,1); % needed to compute expectations
+
+% Compute model-implied yields:
+real_yields = 100 * frequency * (ones(T,1)*A4r + X * B4r);
+nom_yields  = 100 * frequency * (ones(T,1)*A4rn + X * B4rn + Z * C4rn + XX * D4rn);
+
+% Compute model-implied yields under EH:
+real_yields_P = 100 * frequency * (ones(T,1)*APr + all_xi_tt * BPr);
+nom_yields_P  = 100 * frequency * (ones(T,1)*APrn + all_xi_tt * BPrn);
