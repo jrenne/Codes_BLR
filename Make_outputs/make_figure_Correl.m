@@ -4,6 +4,8 @@
 
 indic_k = 5;
 
+horiz_condCorrel = 4;
+
 T = size(Data_StateSpace.dataset,1);
 n_X = size(model_sol.PhiQ,1);
 n_Z = size(model_sol.Phi_Z,1);
@@ -18,7 +20,8 @@ vec_dc(1:n_X) = model_sol.mu_c1;
 vec_pi  = [model_sol.mu_piX;model_sol.mu_piZ;model_sol.mu_piXX];
 
 Y = all_xi_tt;
-[coVar,condCorrel] = compute_condCorrel(model_sol,H,vec_pi,vec_dc,Y);
+[coVar,condCorrel] = compute_condCorrel(model_sol,horiz_condCorrel,...
+    vec_pi,vec_dc,Y);
 
 % Compute gradient of condCorrel
 disp("--- Computing conf. interval of conditional correlation ---");
@@ -28,7 +31,8 @@ for i = 1:n_Y
     Y_perturb = Y;
     Y_perturb(:,i) = Y(:,i) + epsilon;
     [coVar,condCorrel_perturb] = ...
-        compute_condCorrel(model_sol,H,vec_pi,vec_dc,Y_perturb);
+        compute_condCorrel(model_sol,horiz_condCorrel,...
+        vec_pi,vec_dc,Y_perturb);
     grad_condCorrel(:,i) = (condCorrel_perturb - condCorrel)/epsilon;
 end
 
