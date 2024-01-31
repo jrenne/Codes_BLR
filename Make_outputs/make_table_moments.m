@@ -25,7 +25,7 @@ for row = 1:size(rowNames, 1)
         for col = 1:size(colNames,2)
             if col < size(colNames,2) % not the last entry
                 if abs(M{row, col}) < 1
-                    Format = '%.4f';
+                    Format = '%.5f';
                 elseif abs(M{row, col}) >= 100
                     Format = '%.0f';
                 else

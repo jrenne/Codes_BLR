@@ -3,7 +3,6 @@
 model = struct;
 model.param_transf = struct;
 
-model.param_transf.mu_c    = 0.0049;
 
 model.param_transf.rho_g   = 0.9998; %.996118;
 model.param_transf.rho_gz  = 0.0005; %.0112;
@@ -24,7 +23,10 @@ model.param_transf.mu_gamma0   = 19.42;
 model.param_transf.mu_gamma1_g = 0.000001;
 model.param_transf.mu_gamma1_z = 0.000001;
 
-model.param_transf.mu_pi = 0.0054;
+model.param_transf.mu_pi = mean(data_bis(:,find(strcmp(data_names, ...
+    {'CPI all '}))),'omitnan')/100;
+model.param_transf.mu_c  = mean(data_bis(:,find(strcmp(data_names, ...
+    {'Real consumption of all goods and services'}))),'omitnan')/100;
 
 model.param_transf.rho_pi   = 0.9725;
 

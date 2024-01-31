@@ -178,6 +178,7 @@ make_figure_model_fit; % model fit
 make_figure_TP; % term premiums
 make_figure_Correl; % conditional correlations
 make_figure_RA; % Risk aversion
+make_figure_RAproxies; % Compare RA with proxies
 make_figure_decomp_pi; % decompositions of pi
 make_figure_UncondTS; % unconditional term structures of interest
 make_figure_InflationPremium; % Inflation risk premiums
