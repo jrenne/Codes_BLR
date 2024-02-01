@@ -9,8 +9,8 @@ global FILTER max_abs_param moments frequency Data_StateSpace;
 % Estimation setup
 % =========================================================================
 % Re-estimate or used saved results?
-indic_estim_moments = 0; % if 1, re-estimate the model
-indic_estim_MLE     = 0; % if 1, re-estimate the model
+indic_estim_moments = 1; % if 1, re-estimate the model
+indic_estim_MLE     = 1; % if 1, re-estimate the model
 % -------------------------------------------------------------------------
 indic_add_moments   = 1; % Minimize -logL + Moment distance
 nb_loops_moments    = 1; % number of estimation loops - moment-fitting approach
