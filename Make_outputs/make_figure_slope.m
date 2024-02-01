@@ -67,7 +67,7 @@ for iii = 1:2
             model.param_transf.sigma_g = g_values(j);
 
             model.param   = make_param(model);
-            model_sol_new     = make_model_sol(model);
+            model_sol_new = make_model_sol(model);
             [A,B,A4r,B4r] = compute_AB(model_sol_new,H);
 
             results(i,j) = A4r(H) - A4r(1);

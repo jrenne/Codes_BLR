@@ -8,6 +8,14 @@ H = frequency * 10;
     all_stdv_r,all_stdv_rn,all_stdv_TPr,all_stdv_TPrn,all_stdv_IRP] =...
     compute_uncond_yds_TP(model_sol,H);
 
+% Check what happens when rho_gz = 0 (no hyteresis)
+indic_variable = find(strcmp(model_sol.names_param,'rho_gz'));
+model_noHysteresis = model_sol;
+model_noHysteresis.param(indic_variable) = 0.01;
+model_noHysteresis_sol = make_model_sol(model_noHysteresis);
+[uncond_r_noHyteresis] = compute_uncond_yds_TP(model_noHysteresis_sol,H);
+
+
 % Create figure
 figure;
 
