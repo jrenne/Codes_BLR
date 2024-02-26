@@ -11,7 +11,7 @@ if indic_add_moments == 1
     mim = compute_moments(model_sol_new,A4r,B4r,A4rn,B4rn,C4rn,D4rn);
     targets = moments.values;
     distance = mim - targets;
-
+    
     % Special treatment for min and max:
     indic_set2zero = find((distance>0).*(moments.indic_min==1));
     distance(indic_set2zero) = 0;

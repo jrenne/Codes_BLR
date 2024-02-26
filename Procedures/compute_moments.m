@@ -73,7 +73,7 @@ mim           = [mim;stdv_dc];
 
 %     'Std. dev. of output gap';...
 vec_z    = zeros(n_Y,1);
-vec_z([2,3]) = 1;
+vec_z(2) = 1;
 stdv_z   = sqrt(vec_z' * V * vec_z);
 mim      = [mim;stdv_z];
 

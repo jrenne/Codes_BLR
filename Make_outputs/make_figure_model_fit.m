@@ -7,7 +7,9 @@
     eta0r,eta1r,eta0rn,eta1rn] = prepare_State_Space(model_sol,Data_StateSpace);
 
 % Employ Kalman filter:
-[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
+n_X = size(model_sol.PhiQ,1);
+[all_xi_tt,all_P_tt,logl,all_Gains] = kalman(StateSpace,...
+    Data_StateSpace.dataset,xi_00,P_00,n_X);
 %[all_xi_tt,all_P_tt] = kalman_smoother(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
 
 % Plot fit of measured variables:

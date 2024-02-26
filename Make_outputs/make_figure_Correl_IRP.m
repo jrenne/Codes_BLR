@@ -70,8 +70,7 @@ var_dc = var_dc * ones(n_Y^2,1);
 var_pi = condCov .* (ones(T,1) * kron(vec_pi',vec_pi'));
 var_pi = var_pi * ones(n_Y^2,1);
 
-condCorrel = coVar ./ (sqrt(var_pi) .* sqrt(var_dc));
-
+condCorrel = 100*coVar ./ (sqrt(var_pi) .* sqrt(var_dc));
 
 
 figure;
@@ -83,7 +82,7 @@ ylabel('Inflation risk premium, in bps','Color','b');
 yyaxis right
 plot(dates, condCorrel,'r-', 'LineWidth', 1.5);
 ylabel('Conditional correlation, in percent','Color','r');
-ylim([-.4,.3]);
+ylim([-12,12]);
 
 % Plot risk aversion
 %hold on;

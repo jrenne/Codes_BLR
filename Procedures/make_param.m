@@ -9,12 +9,13 @@ parameters(3) = log(model.param_transf.rho_w/(1 - model.param_transf.rho_w));
 parameters(4) = log(model.param_transf.rho_k/(1 - model.param_transf.rho_k));
 
 parameters(5) = log(model.param_transf.sigma_g);
-parameters(6) = log(model.param_transf.sigma_z);
+parameters(6) = log(model.param_transf.sigma_z/...
+    sqrt(1-model.param_transf.rho_z^2));
 parameters(7) = log(model.param_transf.sigma_w);
 parameters(8) = log(model.param_transf.stdv_k);
 
-parameters(9) = sign(model.param_transf.mu_gamma1_g) * abs(model.param_transf.mu_gamma1_g)^(1/5);
-parameters(10) = sign(model.param_transf.mu_gamma1_z) * abs(model.param_transf.mu_gamma1_z)^(1/5);
+parameters(9) = log(-model.param_transf.mu_gamma1_g);
+parameters(10) = log(-model.param_transf.mu_gamma1_z);
 
 parameters(11) = log(model.param_transf.rho_pi/(1 - model.param_transf.rho_pi));
 
@@ -28,4 +29,4 @@ parameters(16) = log(model.param_transf.mu_c);
 parameters(17) = log(model.param_transf.mu_gamma0);
 parameters(18) = log(model.param_transf.delta/(1 - model.param_transf.delta));
 
-parameters(19) = sign(model.param_transf.rho_gz) * 10 * abs(model.param_transf.rho_gz)^(1/3);
+parameters(19) = log(model.param_transf.rho_gz);

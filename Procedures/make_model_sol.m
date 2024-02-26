@@ -11,13 +11,17 @@ rho_w   = exp(parameters(3))/(1+exp(parameters(3)));
 rho_k   = exp(parameters(4))/(1+exp(parameters(4)));
 
 sigma_g = exp(parameters(5));
-sigma_z = exp(parameters(6));
+
+% =========================================================================
+sigma_z = exp(parameters(6)) * sqrt(1-rho_z^2);
+% =========================================================================
+
 sigma_w = exp(parameters(7));
 stdv_k  = exp(parameters(8));
 sigma_k = stdv_k * sqrt(1 - rho_k^2);
 
-mu_gamma1_g = (parameters(9))^5;
-mu_gamma1_z = (parameters(10))^5;
+mu_gamma1_g = - exp(parameters(9));
+mu_gamma1_z = - exp(parameters(10));
 
 rho_pi   = exp(parameters(11))/(1+exp(parameters(11)));
 
@@ -31,7 +35,7 @@ mu_c      = exp(parameters(16));
 mu_gamma0 = exp(parameters(17));
 delta     = exp(parameters(18))/(1+exp(parameters(18)));
 
-rho_gz = (parameters(19)/10)^3;
+rho_gz = exp(parameters(19));
 
 model_sol.param_transf = [rho_g rho_z rho_w rho_k...
     sigma_g sigma_z sigma_w sigma_k...

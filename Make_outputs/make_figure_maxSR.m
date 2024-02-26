@@ -27,7 +27,7 @@ figure;
 % Plot risk aversion
 plot(dates, maxSR, 'b-', 'LineWidth', 1.5);
 hold on;
-ylim([0.9 2])
+ylim([0.5 10])
 
 lower_bound = maxSR - 2*std_maxSR;
 upper_bound = maxSR + 2*std_maxSR;

@@ -1,4 +1,4 @@
-function[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,DataObs,xi_00,P_00,option)
+function[all_xi_tt,all_P_tt,logl,all_Gains] = kalman(StateSpace,DataObs,xi_00,P_00,option)
 
 % =========================================================================
 % State-space model:
@@ -30,6 +30,8 @@ T = size(DataObs,1); % number of periods
 all_xi_tt = zeros(T,n_xi);
 all_P_tt  = zeros(T,n_xi^2);
 
+all_Gains = NaN(T,n_xi*n_y);
+
 % Initialize vectors (date 0):
 xi_t_1t_1 = xi_00;
 P_t_1t_1  = P_00;
@@ -54,6 +56,7 @@ for t = 1:T
         % There is no observation on this date.
         xi_tt    = xi_tt_1;
         P_tt     = P_tt_1;
+        Gain_not_reduced = NaN(n_xi,n_y);
     else
         % There is at least one observation on this date.
         Hstar = H(:,indic_notNaN);
@@ -64,16 +67,20 @@ for t = 1:T
         Gain     = P_tt_1 * Hstar * (Hstar' * P_tt_1 * Hstar + Rstar)^(-1);
         xi_tt    = xi_tt_1 + Gain * lambda_tstar;
         P_tt     = P_tt_1 - Gain * Hstar' * P_tt_1;
+
+        Gain_not_reduced = NaN(n_xi,n_y);
+        Gain_not_reduced(:,indic_notNaN) = Gain;
     end
 
     % Impose constraints on xi components:
-    if(~isnan(StateSpace.option))
-        xi_tt = impose_constraint(xi_tt,StateSpace.option);
+    if(~isnan(option))
+        xi_tt = impose_constraint(xi_tt,option);
     end
 
     % Store results:
     all_xi_tt(t,:) = xi_tt';
     all_P_tt(t,:)  = reshape(P_tt,1,n_xi^2);
+    all_Gains(t,:) = reshape(Gain_not_reduced,1,n_xi*n_y);
 
     % Update of log-likelihood:
     logl = logl - nstar/2 * log(2*pi) - 1/2 * det(Hstar' * P_tt_1 * Hstar + Rstar) - ...

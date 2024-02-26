@@ -9,12 +9,14 @@ global FILTER max_abs_param moments frequency Data_StateSpace;
 % Estimation setup
 % =========================================================================
 % Re-estimate or used saved results?
-indic_estim_moments = 1; % if 1, re-estimate the model
+indic_estim_moments = 0; % if 1, re-estimate the model
 indic_estim_MLE     = 1; % if 1, re-estimate the model
 % -------------------------------------------------------------------------
-indic_add_moments   = 1; % Minimize -logL + Moment distance
-nb_loops_moments    = 1; % number of estimation loops - moment-fitting approach
-nb_loops_MLE        = 8; % number of estimation loops - MLE approach
+indic_add_moments   = 0;   % minimize -logL + Moment distance
+nb_loops_moments    = 1;   % number of estimation loops - moment-fitting approach
+nb_loops_MLE        = 20;   % number of estimation loops - MLE approach
+nb_iterations_MLE   = 400; % number of iteration for each use of the simplex
+indic_save          = 1;   % if == 1, then results are saved
 % =========================================================================
 
 % Add paths:
@@ -50,7 +52,7 @@ max_abs_param = 20; % maximum value of absolute values of parameters
 
 % Define parameters to be optimized on:
 FILTER = 0 * model_sol.param + 1;
-FILTER([8;15;16;18]) = 0; % stdv_k, mu_c, mu_pi, delta
+FILTER([6;8;15;16;17;18]) = 0; % stdv_z, stdv_k, mu_c, mu_pi, mu_gamma0, delta
 
 % Create vector of parameters:
 sub_parameters = model.param(FILTER==1);
@@ -64,7 +66,7 @@ if indic_estim_moments == 1
 
     % Set optimization options:
     options = optimset('Display','iter','PlotFcns', ...
-        @optimplotfval,'MaxIter',200);
+        @optimplotfval,'MaxIter',100);
 
     % Display message box:
     h=msgbox('Please wait. Calculation in progress...');
@@ -86,7 +88,9 @@ if indic_estim_moments == 1
     indic_disp = 1; % print table
     M = print_moments(sub_parameters,model_sol,indic_disp);
 
-    save("results/save_moment_approach.mat","model_sol");
+    if indic_save == 1
+        save("results/save_moment_approach.mat","model_sol");
+    end
 else
     load("results/save_moment_approach.mat");
 end
@@ -96,6 +100,12 @@ end
 % Step 2 --- Kalman filter
 % =========================================================================
 
+if (indic_estim_moments == 0)&&(indic_estim_MLE == 1)
+    % In that case, use Make_ini_model to get initial values
+    Make_ini_model;
+    % Construct and solve model:
+    model_sol = make_model_sol(model);
+end
 
 % ========== Kalman filter estimation =====================================
 names_of_variables = {'Real consumption of all goods and services',...
@@ -117,7 +127,8 @@ Make_dataset_observed;
 
 % Define parameters to be optimized on:
 FILTER = 0 * model_sol.param + 1;
-FILTER([8;15;16]) = 0; % stdv_k, mu_c, mu_pi
+FILTER([6;8;15;16;17]) = 0; % stdv_z, stdv_k, mu_c, mu_pi, mu_gamma0
+FILTER_MLE = FILTER;
 
 % Create vector of parameters:
 sub_parameters =  model_sol.param(FILTER==1);
@@ -131,15 +142,15 @@ if indic_estim_MLE == 1
 
     % Set optimization options:
     options = optimset('Display','iter','PlotFcns', ...
-        @optimplotfval,'MaxIter',400);
+        @optimplotfval,'MaxIter',nb_iterations_MLE);
     % Display message box:
-    h=msgbox('Please wait.Calculation in progress...');
+    %h=msgbox('Please wait.Calculation in progress...');
     for i = 1:nb_loops_MLE
         [sub_parameters,fval] = ...
             fminsearch(f,sub_parameters,options);
     end
     % Close message box:
-    if isvalid(h); delete(h); end
+    %if isvalid(h); delete(h); end
 
     % Update complete vector of parameters:
     new_parameters = model_sol.param;
@@ -147,7 +158,9 @@ if indic_estim_MLE == 1
     model_sol.param = new_parameters;
     model_sol = make_model_sol(model_sol);
 
-    save("results/save_MLE_approach.mat","model_sol");
+    if indic_save == 1
+        save("results/save_MLE_approach.mat","model_sol");
+    end
 else
     load("results/save_MLE_approach.mat");
 end
@@ -172,6 +185,7 @@ M = print_moments(sub_parameters,model_sol,indic_disp);
 % Plot fit obtained with Kalman filter:
 % plot_KF;
 
+% return
 
 %Prepare figures: ---------------------------------------------------------
 make_figure_model_fit; % model fit
@@ -184,6 +198,7 @@ make_figure_UncondTS; % unconditional term structures of interest
 make_figure_InflationPremium; % Inflation risk premiums
 make_figure_maxSR; % maximum Sharpe ratio
 make_figure_IRF; % Impulse response functions
+make_figure_Correl_IRP; % Impulse response functions
 
 %Prepare tables: ----------------------------------------------------------
 make_table_moments;
