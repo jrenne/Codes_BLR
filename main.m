@@ -10,9 +10,9 @@ global FILTER max_abs_param moments frequency Data_StateSpace;
 % =========================================================================
 % Re-estimate or used saved results?
 indic_estim_moments = 0; % if 1, re-estimate the model
-indic_estim_MLE     = 1; % if 1, re-estimate the model
+indic_estim_MLE     = 0; % if 1, re-estimate the model
 % -------------------------------------------------------------------------
-indic_add_moments   = 0;   % minimize -logL + Moment distance
+indic_add_moments   = 1;   % minimize -logL + Moment distance
 nb_loops_moments    = 1;   % number of estimation loops - moment-fitting approach
 nb_loops_MLE        = 20;   % number of estimation loops - MLE approach
 nb_iterations_MLE   = 300; % number of iteration for each use of the simplex
@@ -51,8 +51,9 @@ Moments2target;
 max_abs_param = 20; % maximum value of absolute values of parameters
 
 % Define parameters to be optimized on:
-FILTER = 0 * model_sol.param + 1;
-FILTER([6;8;15;16;17;18]) = 0; % stdv_z, stdv_k, mu_c, mu_pi, mu_gamma0, delta
+FILTER([6;8;9;10;15;16;17;20;21]) = 0;
+% stdv_z, stdv_k, mu_gamma1_g, mu_gamma1_z, mu_c, mu_pi, mu_gamma0,
+% mu_kappa, sigma_pi
 
 % Create vector of parameters:
 sub_parameters = model.param(FILTER==1);
@@ -127,7 +128,7 @@ Make_dataset_observed;
 
 % Define parameters to be optimized on:
 FILTER = 0 * model_sol.param + 1;
-FILTER([6;8;9;10;15;16;17;20;21]) = 0;
+FILTER([6;8;9;10;15;16;17]) = 0;
 % stdv_z, stdv_k, mu_gamma1_g, mu_gamma1_z, mu_c, mu_pi, mu_gamma0,
 % mu_kappa, sigma_pi
 FILTER_MLE = FILTER;
@@ -161,10 +162,19 @@ if indic_estim_MLE == 1
     model_sol = make_model_sol(model_sol);
 
     if indic_save == 1
-        save("results/save_MLE_approach.mat","model_sol");
+        if indic_add_moments == 1
+            save("results/save_MLE__moments_approach.mat","model_sol");
+        else
+            save("results/save_MLE_approach.mat","model_sol");
+        end
     end
 else
-    load("results/save_MLE_approach.mat");
+    if indic_add_moments == 1
+        load("results/save_MLE__moments_approach.mat");
+    else
+        load("results/save_MLE_approach.mat");
+    end
+
 end
 
 % Computation of distance (to check):

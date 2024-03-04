@@ -36,5 +36,8 @@ Data_StateSpace.stdv_measur(indic_variable) = .2 ;
 Data_StateSpace.stdv_measur(4:6) = .2 ;
 %Data_StateSpace.stdv_measur(4:6) = .05 ;
 
+% Low std dev for fit of real yields:
+Data_StateSpace.stdv_measur(7:8) = .2 ;
+
 % Plot fit obtained with Kalman filter:
 % plot_KF;
