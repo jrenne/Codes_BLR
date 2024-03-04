@@ -44,7 +44,7 @@ n_Z = size(model_sol.Phi_Z,1);
 n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
 % Compute conditional correlation:
 H = 4;
-[E,V,A,B,Theta0,Theta1,AH,BH,Theta0H,Theta1H] = compute_EV(model_sol,H);
+[Theta0H,Theta1H] = compute_condCov(model_sol,H);
 
 % Compute conditional covariance matrices:
 condCov = ones(T,1) * Theta0H' + all_xi_tt * Theta1H';

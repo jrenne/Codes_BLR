@@ -21,9 +21,9 @@ XX(:,:,1) = kron(x0,x0) * ones(1,nb_replic);
 
 for t = 2:T
     
-    x = model.Phi * x + model.Sigma * epsilon(:,:,t);
-    
     SigmaZ = model.Gamma0 + model.Gamma1 * x;
+
+    x = model.Phi * x + model.Sigma * epsilon(:,:,t);
     
     SigmaZeps = SigmaZ .* kron(epsilon(:,:,t),ones(n_Z,1));
     SigmaZeps = kron(ones(1,n_eps),eye(n_Z)) * SigmaZeps;

@@ -12,14 +12,14 @@ n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
 
 % Compute (conditional) moments of Y:
 H = 1; % horizon: 10 years (for SPF forecasts)
-[xi_00,P_00,A1,B1,Theta0,Theta1,AH,BH,Theta0H,Theta1H] = compute_EV(model_sol,H);
+[xi_00,P_00,A1,B1,Theta0,Theta1,~,~] = compute_EV(model_sol,H);
 
 StateSpace = struct;
 
 StateSpace.mu_xi  = A1;
 StateSpace.F      = B1;
-StateSpace.Theta0 = Theta0H;
-StateSpace.Theta1 = Theta1H;
+StateSpace.Theta0 = Theta0;
+StateSpace.Theta1 = Theta1;
 
 % Compute interest-rate loadings:
 maturities_in_year = Data_StateSpace.maturties_nomyields_in_years;

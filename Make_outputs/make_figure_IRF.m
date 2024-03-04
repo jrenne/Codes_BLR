@@ -48,7 +48,7 @@ B4rn = [B4rn;C4rn;D4rn];
 % Dynamics ----------------------------------------------------------------
 
 H = 1;
-[E,V,A1,B1,Theta0,Theta1,AH,BH,Theta0H,Theta1H] = compute_EV(model_sol,H);
+[E,V,A1,B1,Theta0,Theta1,AH,BH] = compute_EV(model_sol,H);
 EX = E(1:n_X);
 EZ = E((n_X+1):(n_X+n_Z));
 

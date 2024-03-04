@@ -15,7 +15,7 @@ indic_estim_MLE     = 1; % if 1, re-estimate the model
 indic_add_moments   = 0;   % minimize -logL + Moment distance
 nb_loops_moments    = 1;   % number of estimation loops - moment-fitting approach
 nb_loops_MLE        = 20;   % number of estimation loops - MLE approach
-nb_iterations_MLE   = 400; % number of iteration for each use of the simplex
+nb_iterations_MLE   = 300; % number of iteration for each use of the simplex
 indic_save          = 1;   % if == 1, then results are saved
 % =========================================================================
 
@@ -127,7 +127,9 @@ Make_dataset_observed;
 
 % Define parameters to be optimized on:
 FILTER = 0 * model_sol.param + 1;
-FILTER([6;8;15;16;17]) = 0; % stdv_z, stdv_k, mu_c, mu_pi, mu_gamma0
+FILTER([6;8;9;10;15;16;17;20;21]) = 0;
+% stdv_z, stdv_k, mu_gamma1_g, mu_gamma1_z, mu_c, mu_pi, mu_gamma0,
+% mu_kappa, sigma_pi
 FILTER_MLE = FILTER;
 
 % Create vector of parameters:

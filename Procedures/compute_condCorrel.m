@@ -3,7 +3,7 @@ function [coVar,condCorrel] = compute_condCorrel(model_sol,H,vec1,vec2,Y)
 T = size(Y,1);
 n_Y = size(Y,2);
 
-[~,~,~,~,~,~,~,~,Theta0H,Theta1H] = compute_EV(model_sol,H);
+[Theta0H,Theta1H] = compute_condCov(model_sol,H);
 
 % Compute conditional covariance matrices:
 condCov = ones(T,1) * Theta0H' + Y * Theta1H';

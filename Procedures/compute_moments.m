@@ -9,7 +9,7 @@ n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
 
 % Compute moments of Y:
 H = 1;
-[E,V,A1,B1,~,~,~,BH,~,~] = compute_EV(model_sol,H);
+[E,V,A1,B1,~,~,~,BH] = compute_EV(model_sol,H);
 
 % Compute covariance matrix of [Y_t;Y_{t+1}]:
 VarYttp1 = V * BH';

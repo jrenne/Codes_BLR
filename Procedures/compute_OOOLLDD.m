@@ -1,4 +1,4 @@
-function[E,V,A,B,Theta0,Theta1,AH,BH] = compute_EV(model,H)
+function[Theta0H,Theta1H] = compute_condCov(model,H)
 % Computes conditional and unconditional moments (expectations and variances)
 
 epsilon = 10^(-5); % -6
@@ -21,7 +21,7 @@ for i = 1:size(u,1)
     u_eps = u;
     u_eps(i) = epsilon;
 
-    LTY_eps = compute_LT_Y(model,u_eps);
+    LTY_eps = compute_LT_Y_multi(model,u_eps,H);
     A(i) = LTY_eps.Psi0/epsilon;
     B(i,:) = LTY_eps.Psi_Y'/epsilon;
 end
@@ -66,10 +66,10 @@ for i = 1:size(u,1)
         u_eps_imjp(j)  = u_eps_imjp(j) + epsilon;
         u_eps_ipjm(j)  = u_eps_ipjm(j) - epsilon;
 
-        LTY_eps_ipjp  = compute_LT_Y(model,u_eps_ipjp);
-        LTY_eps_imjm  = compute_LT_Y(model,u_eps_imjm);
-        LTY_eps_imjp  = compute_LT_Y(model,u_eps_imjp);
-        LTY_eps_ipjm  = compute_LT_Y(model,u_eps_ipjm);
+        LTY_eps_ipjp  = compute_LT_Y_multi(model,u_eps_ipjp,H);
+        LTY_eps_imjm  = compute_LT_Y_multi(model,u_eps_imjm,H);
+        LTY_eps_imjp  = compute_LT_Y_multi(model,u_eps_imjp,H);
+        LTY_eps_ipjm  = compute_LT_Y_multi(model,u_eps_ipjm,H);
 
         Theta0((i-1)*n_Y+j,1) = (LTY_eps_ipjp.Psi0 + LTY_eps_imjm.Psi0 - ...
             (LTY_eps_imjp.Psi0 + LTY_eps_ipjm.Psi0))/(4*epsilon^2);
@@ -91,11 +91,11 @@ V = reshape(V,n_Y,n_Y);
 
 % Compute conditional moments, horizon H ----------------------------------
 
-AH = I_PhiY_1 * (eye(n_Y) - B^H) * A;
-BH = B^H;
+AH = A;
+BH = B;
 
-%Theta0H = I_PhiYPhiY_1 * (eye(n_Y^2)-kron(B,B)^H) * Theta0;
-%Theta1H = I_PhiYPhiY_1 * (eye(n_Y^2)-kron(B,B)^H) * Theta1;
+Theta0H = Theta0;
+Theta1H = Theta1;
 
 
 

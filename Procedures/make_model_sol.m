@@ -11,10 +11,7 @@ rho_w   = exp(parameters(3))/(1+exp(parameters(3)));
 rho_k   = exp(parameters(4))/(1+exp(parameters(4)));
 
 sigma_g = exp(parameters(5));
-
-% =========================================================================
 sigma_z = exp(parameters(6)) * sqrt(1-rho_z^2);
-% =========================================================================
 
 sigma_w = exp(parameters(7));
 stdv_k  = exp(parameters(8));
@@ -37,21 +34,24 @@ delta     = exp(parameters(18))/(1+exp(parameters(18)));
 
 rho_gz = exp(parameters(19));
 
+mu_kappa = (exp(parameters(20))-1)/(exp(parameters(20))+1);
+sigma_pi = exp(parameters(21));
+
 model_sol.param_transf = [rho_g rho_z rho_w rho_k...
     sigma_g sigma_z sigma_w sigma_k...
     mu_gamma1_g mu_gamma1_z rho_pi rho_pi_star...
     sigma_pi_star sigma_pi_z mu_pi mu_c...
-    mu_gamma0 delta rho_gz];
+    mu_gamma0 delta rho_gz mu_kappa sigma_pi];
 model_sol.names_param = {'rho_g';'rho_z';'rho_w';'rho_k';...
     'sigma_g';'sigma_z';'sigma_w';'sigma_k';...
     'mu_gamma1_g';'mu_gamma1_z';'rho_pi';'rho_pi_star';...
     'sigma_pi_star';'sigma_pi_z';'mu_pi';'mu_c';...
-    'mu_gamma0';'delta';'rho_gz'};
+    'mu_gamma0';'delta';'rho_gz';'mu_kappa';'sigma_pi'};
 model_sol.names_param_Latex = {'$\rho_g$';'$\rho_z$';'$\rho_w$';'$\rho_k$';...
     '$\sigma_g$';'$\sigma_z$';'$\sigma_w$';'$\sigma_k$';...
     '$\mu_{\gamma,1,g}$';'$\mu_{\gamma,1,z}$';'$\rho_\pi$';'$\rho_{\pi}^*$';...
     '$\sigma_{\pi}^*$';'$\sigma_{\pi,z}$';'$\mu_\pi$';'$\mu_c$';...
-    '$\mu_{\gamma,0}$';'$\delta$';'$\rho_{g,z}$'};
+    '$\mu_{\gamma,0}$';'$\delta$';'$\rho_{g,z}$';'$\mu_\kappa$';'\sigma_\pi'};
 
 % X_t is as follows:
 %     [g_t,z_t,t_{t-1},w_t,k_t]'
@@ -60,11 +60,11 @@ model_sol.names_param_Latex = {'$\rho_g$';'$\rho_z$';'$\rho_w$';'$\rho_k$';...
 
 model_sol.names_shocks_Latex = {'$\varepsilon_{g,t}$';'$\varepsilon_{z,1,t}$';...
     '$\varepsilon_{z,2,t}$';...
-    '$\varepsilon_{w,t}$';'$\varepsilon_{k,t}$';'$\sigma_{\pi^*,t}$'};
+    '$\varepsilon_{w,t}$';'$\varepsilon_{k,t}$';'$\sigma_{\pi^*,t}$';'$\sigma_{\pi,t}$'};
 
 n_X   = 5;
-n_Z   = 2;
-n_eps = 6;
+n_Z   = 3;
+n_eps = 7;
 n_Y   = n_X + n_Z + n_X^2;
 
 model_sol.mu_c0     = mu_c;
@@ -97,22 +97,23 @@ model_sol.Sigma(2,3) = 1/sqrt(2)*sigma_z;
 model_sol.Sigma(4,4) = sigma_w;
 model_sol.Sigma(5,5) = sigma_k;
 
-model_sol.Phi_Z      = zeros(2,2);
+model_sol.Phi_Z      = zeros(n_Z,n_Z);
 model_sol.Phi_Z(1,1) = rho_pi_star;
 model_sol.Phi_Z(2,2) = rho_pi;
 
 model_sol.Gamma0     = zeros(n_Z*n_eps,1);
-model_sol.Gamma0(4)  = +sigma_pi_z/2;
-model_sol.Gamma0(6)  = -sigma_pi_z/2;
-model_sol.Gamma0(11) = sigma_pi_star;
+model_sol.Gamma0(5)  =  (1+mu_kappa)*sigma_pi_z/2;
+model_sol.Gamma0(8)  = -(1-mu_kappa)*sigma_pi_z/2;
+model_sol.Gamma0(16) = sigma_pi_star;
+model_sol.Gamma0(21) = sigma_pi;
 
 model_sol.Gamma1      = zeros(n_Z*n_eps,n_X);
-model_sol.Gamma1(4,5) = sigma_pi_z/2;
-model_sol.Gamma1(6,5) = sigma_pi_z/2;
+model_sol.Gamma1(5,5) = sigma_pi_z/2;
+model_sol.Gamma1(8,5) = sigma_pi_z/2;
 
 % Define inflation process:
 model_sol.mu_pi0    = mu_pi;
-model_sol.mu_piZ    = [1;1];
+model_sol.mu_piZ    = [1;1;1];
 model_sol.mu_piX    = zeros(n_X,1);
 model_sol.mu_piXX   = zeros(n_X*(n_X+1)/2,1);
 

@@ -16,15 +16,13 @@ z = z0;
 Z = z0';
 
 for t = 2:T
-    
-    x = model.Phi * x + model.Sigma * epsilon(:,t);
-    
+
     SigmaZ = reshape(model.Gamma0 + model.Gamma1 * x,n_Z,n_eps);
-    
-    %disp(SigmaZ);
-    
+
+    x = model.Phi * x + model.Sigma * epsilon(:,t);
+
     z      = model.Phi_Z * z + SigmaZ * epsilon(:,t);
-    
+
     X  = [X;x'];
     Z  = [Z;z'];
     XX = [XX;vech(x * x')'];

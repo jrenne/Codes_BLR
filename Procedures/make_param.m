@@ -30,3 +30,6 @@ parameters(17) = log(model.param_transf.mu_gamma0);
 parameters(18) = log(model.param_transf.delta/(1 - model.param_transf.delta));
 
 parameters(19) = log(model.param_transf.rho_gz);
+
+parameters(20) = log((1+model.param_transf.mu_kappa)/(1 - model.param_transf.mu_kappa));
+parameters(21) = log(model.param_transf.sigma_pi);

@@ -20,13 +20,20 @@ model.param_transf.stdv_k  = .3;
 model.param_transf.delta = .995^(1/4);
 
 model.param_transf.mu_gamma0   = 20;
-model.param_transf.mu_gamma1_g = -0.000001;
-model.param_transf.mu_gamma1_z = -0.000001;
+model.param_transf.mu_gamma1_g = -0.0001;
+model.param_transf.mu_gamma1_z = -0.0001;
+
+model.param_transf.mu_kappa = 0;
+model.param_transf.sigma_pi = 0.000001;
 
 model.param_transf.mu_pi = mean(data_bis(:,find(strcmp(data_names, ...
     {'CPI all '}))),'omitnan')/100;
 model.param_transf.mu_c  = mean(data_bis(:,find(strcmp(data_names, ...
     {'Real consumption of all goods and services'}))),'omitnan')/100;
+% model.param_transf.mu_pi = mean(data(:,find(strcmp(data_names, ...
+%     {'CPI all '}))),'omitnan')/100;
+% model.param_transf.mu_c  = mean(data(:,find(strcmp(data_names, ...
+%     {'Real consumption of all goods and services'}))),'omitnan')/100;
 
 model.param_transf.rho_pi   = 0.9725;
 
