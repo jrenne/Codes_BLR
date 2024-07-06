@@ -26,7 +26,7 @@ AllRA(end-length(X_BBM)+1:end,end)   = X_BBM(:,3);
 AllRA_ZSC=NaN(size(AllRA));
 for rr=1:size(AllRA,2)
     RAL=AllRA(:,rr);
-    AllRA_ZSC(:,rr)=(RAL - mean(RAL,'omitmissing'))/std(RAL,'omitmissing');
+    AllRA_ZSC(:,rr)=(RAL - nanmean(RAL))/nanstd(RAL);
 end
 
 figure;

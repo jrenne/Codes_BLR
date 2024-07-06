@@ -195,7 +195,6 @@ M = print_moments(sub_parameters,model_sol,indic_disp);
 
 % Calculate covariance-matrix of parameters
 compute_stdev_params;
-return;
 
 %Prepare figures: ---------------------------------------------------------
 make_figure_model_fit;     % model fit
