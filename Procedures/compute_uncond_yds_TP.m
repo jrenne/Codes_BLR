@@ -61,6 +61,3 @@ uncond_rn = constant4rn' + loadings4rn' * E;
 uncond_TPr  = constantTPr'  + loadingsTPr' * E;
 uncond_TPrn = constantTPrn' + loadingsTPrn' * E;
 uncond_IRP  = constantIRP'  + loadingsIRP' * E;
-
-
-

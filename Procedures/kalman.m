@@ -1,4 +1,4 @@
-function[all_xi_tt,all_P_tt,logl,all_Gains] = kalman(StateSpace,DataObs,xi_00,P_00,option)
+function[all_xi_tt,all_P_tt,logl,logl_t,all_Gains] = kalman(StateSpace,DataObs,xi_00,P_00,option)
 
 % =========================================================================
 % State-space model:
@@ -17,7 +17,7 @@ function[all_xi_tt,all_P_tt,logl,all_Gains] = kalman(StateSpace,DataObs,xi_00,P_
 
 mu_xi = StateSpace.mu_xi;
 F     = StateSpace.F;
-R     = StateSpace.R;
+%R     = StateSpace.R;
 A     = StateSpace.A;
 H     = StateSpace.H;
 
@@ -37,9 +37,13 @@ xi_t_1t_1 = xi_00;
 P_t_1t_1  = P_00;
 
 % Log-likelihood:
-logl = 0;
+%logl   = 0;
+logl_t = zeros(T,1);
 
 for t = 1:T
+    
+    R = diag(StateSpace.R(t,:));
+
     y_t = DataObs(t,:)';
 
     Q = functionQ(StateSpace,xi_t_1t_1);
@@ -83,11 +87,15 @@ for t = 1:T
     all_Gains(t,:) = reshape(Gain_not_reduced,1,n_xi*n_y);
 
     % Update of log-likelihood:
-    logl = logl - nstar/2 * log(2*pi) - 1/2 * det(Hstar' * P_tt_1 * Hstar + Rstar) - ...
+    % logl = logl - nstar/2 * log(2*pi) - 1/2 * det(Hstar' * P_tt_1 * Hstar + Rstar) - ...
+    %     1/2 * lambda_tstar' * (Hstar' * P_tt_1 * Hstar + Rstar)^(-1) * lambda_tstar;
+
+    logl_t(t) = - nstar/2 * log(2*pi) - 1/2 * det(Hstar' * P_tt_1 * Hstar + Rstar) - ...
         1/2 * lambda_tstar' * (Hstar' * P_tt_1 * Hstar + Rstar)^(-1) * lambda_tstar;
 
     xi_t_1t_1 = xi_tt;
     P_t_1t_1  = P_tt;
 end
 
+logl = sum(logl_t);
 

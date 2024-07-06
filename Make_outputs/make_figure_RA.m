@@ -3,7 +3,7 @@
 % =========================================================================
 
 % Compute risk aversion:
-riskaversion = model_sol.mu_gamma0*ones(T,1)+all_xi_tt(:,1:n_X)*model_sol.mu_gamma1;
+riskaversion = model_sol.mu_gamma0*ones(T,1) + all_xi_tt(:,1:n_X)*model_sol.mu_gamma1;
 
 % Create figure
 figure;
@@ -29,6 +29,7 @@ fill([dates' flip(dates)'],...
     [lower_bound' flip(upper_bound)'],...
     'k', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
+set(gca, 'FontSize', 12); % increase size of ticks labels
 
 % Shade NBER recession periods
 for i = 1:length(recessionStarts)
@@ -44,13 +45,15 @@ ylabel('Risk aversion');
 grid on;
 
 % Add legend
-legend('Risk aversion', '95% confidence band', 'NBER Recession', 'Location', 'best');
-
-% Save figure in EPS format
-figFileName = 'Figures/figure_RiskAversion.eps';
-print(figFileName, '-depsc', '-r300');
+legend('Risk aversion', '95% confidence band', 'NBER Recession', 'Location', 'best', 'FontSize', 11);
 
 % Display the plot
 hold off;
 
-disp(['Figure saved as ' figFileName]);
+if indic_save_output == 1
+    % Save figure in EPS format
+    figFileName = 'Figures/figure_RiskAversion.eps';
+    print(figFileName, '-depsc', '-r300');
+    disp(['Figure saved as ' figFileName]);
+end
+

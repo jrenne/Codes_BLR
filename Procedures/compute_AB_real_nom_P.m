@@ -1,7 +1,7 @@
 function[APr,BPr,APrn,BPrn] = compute_AB_real_nom_P(model_sol,H,...
     eta0r,eta1r,eta0rn,eta1rn,...
     A1,B1)
-% This functions computes the term structure of nominal rates under P.
+% This functions computes the term structure of rea/nominal rates under P.
 % (under the Expectation Hypothesis, without convexity adjustment).
 
 % Real rate:

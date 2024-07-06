@@ -1,7 +1,7 @@
 function[Theta0H,Theta1H] = compute_condCov(model,H)
 % Computes conditional and unconditional moments (expectations and variances)
 
-epsilon = 10^(-5); % -6
+epsilon = 10^(-10); %epsilon = 10^(-5);
 
 n_X   = size(model.Phi,1);
 n_Z   = size(model.Phi_Z,1);
@@ -48,10 +48,3 @@ end
 
 Theta0H = Theta0;
 Theta1H = Theta1;
-
-
-
-
-
-
-

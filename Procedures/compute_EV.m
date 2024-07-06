@@ -1,7 +1,7 @@
 function[E,V,A,B,Theta0,Theta1,AH,BH] = compute_EV(model,H)
 % Computes conditional and unconditional moments (expectations and variances)
 
-epsilon = 10^(-5); % -6
+epsilon = 10^(-10); %epsilon = 10^(-5);
 
 n_X   = size(model.Phi,1);
 n_Z   = size(model.Phi_Z,1);
@@ -89,6 +89,13 @@ E = I_PhiY_1 * A;
 V = I_PhiYPhiY_1 * (Theta0 + Theta1 * E);
 V = reshape(V,n_Y,n_Y);
 
+% Replace E(X) and V(X) with analytical solutions
+muX = zeros(n_X,1);
+E(1:n_X) = (eye(n_X) - model.Phi)^(-1)*muX;
+vecSigmaSigma  = reshape(model.Sigma * model.Sigma',n_X^2,1);
+vecVX          = (eye(n_X^2) - kron(model.Phi,model.Phi))^(-1) * vecSigmaSigma;
+V(1:n_X,1:n_X) = reshape(vecVX,n_X,n_X);
+
 % Compute conditional moments, horizon H ----------------------------------
 
 AH = I_PhiY_1 * (eye(n_Y) - B^H) * A;
@@ -96,10 +103,3 @@ BH = B^H;
 
 %Theta0H = I_PhiYPhiY_1 * (eye(n_Y^2)-kron(B,B)^H) * Theta0;
 %Theta1H = I_PhiYPhiY_1 * (eye(n_Y^2)-kron(B,B)^H) * Theta1;
-
-
-
-
-
-
-

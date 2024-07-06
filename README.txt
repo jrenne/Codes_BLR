@@ -2,7 +2,7 @@
 -----------------------------------------------------------
 Replication package for
 
-"The time-varying inflation-growth correlation and the yield curve"
+"Time-varying risk aversion and inflation-consumption correlation in an equilibrium term structure model"
 
 By Tilman Bletzinger, Wolfgang Lemke, and Jean-Paul Renne.
 
@@ -23,11 +23,13 @@ To generate all tables and figures of the paper, simply run "main.m" using Matla
 Estimation data are in the US_data_matlab.xlsx file ("Data" folder).
 
 The output gap is log GDP minus log potential GDP (extracted from the FRED database, tickers GDPC1 and GDPPOT).
-Real consumption is from the Bureau of Economic Analysis.
+Real consumption of all goods and services is from the Bureau of Economic Analysis.
 Population is from FRED.
-CPI inflation is from the Bureau of Labor Statistics
+CPI all items inflation is from the Bureau of Labor Statistics
 Nominal (YIELDX) and real (TIPSX) interest rates are from the updated Gürkaynak, Sack, and Wright (2007).
-Survey of Professional Forecasters (SPF) data (mean of forecasts) are from the Federal Reserve Bank of Philadelphia for average inflation over the next ten years (CPI10), the average 10-year treasury bond rate (BOND10), and the average 3-month treasury bill rate (BILL10).
+Backcasted real (REALRX) interest rates are from Jan Groen and Menno Middeldorp (2013, Federal Reserve Bank of New York).
+The perceived target rate of inflation (PTR) and the expected federal funds rate in the long run (RTR) are from the FRB-US model of the Federal Reserve Board.
+Survey of Professional Forecasters (SPF) data (mean of forecasts) are from the Federal Reserve Bank of Philadelphia for average inflation over the next ten years (CPI10), and the average 3-month treasury bill rate (BILL10).
 
 ------ Outputs:
 

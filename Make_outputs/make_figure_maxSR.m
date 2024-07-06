@@ -8,7 +8,7 @@ maxSR = compute_maxSR(model_sol,Y);
 % Compute gradient of maxSR:
 disp("--- Computing conf. interval of max Sharpe ratio ---");
 grad_condCorrel = zeros(T,n_Y);
-epsilon = .000001;
+epsilon = 10^(-10); %epsilon = .000001;
 for i = 1:n_Y
     Y_perturb = Y;
     Y_perturb(:,i) = Y(:,i) + epsilon;
@@ -24,10 +24,10 @@ std_maxSR = sqrt(var_maxSR);
 % Create figure
 figure;
 
-% Plot risk aversion
+% Plot max Sharpe ratio
 plot(dates, maxSR, 'b-', 'LineWidth', 1.5);
 hold on;
-ylim([0.5 10])
+ylim([0.5 50])
 
 lower_bound = maxSR - 2*std_maxSR;
 upper_bound = maxSR + 2*std_maxSR;
@@ -53,6 +53,7 @@ fill([dates' flip(dates)'],...
 %     [lower_bound' flip(upper_bound)'],...
 %     'k', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
+set(gca, 'FontSize', 12); % increase size of ticks labels
 
 % Shade NBER recession periods
 for i = 1:length(recessionStarts)
@@ -68,14 +69,14 @@ ylabel('maximum Sharpe ratio');
 grid on;
 
 % Add legend
-legend('maximum Sharpe ratio','95% confidence band', 'NBER Recession', 'Location', 'best');
-
-
-% Save figure in EPS format
-figFileName = 'Figures/figure_maxSR.eps';
-print(figFileName, '-depsc', '-r300');
+legend('maximum Sharpe ratio','95% confidence band', 'NBER Recession', 'Location', 'best', 'FontSize', 11);
 
 % Display the plot
 hold off;
 
-disp(['Figure saved as ' figFileName]);
+if indic_save_output == 1
+    % Save figure in EPS format
+    figFileName = 'Figures/figure_maxSR.eps';
+    print(figFileName, '-depsc', '-r300');
+    disp(['Figure saved as ' figFileName]);
+end

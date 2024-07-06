@@ -7,15 +7,12 @@ Format = '%0.2f';
 maturities_in_year = [2;5;10];
 H = max(frequency*maturities_in_year);
 
-param2set2zero = {'sigma_w','sigma_k','sigma_z'};
-param2set2zero = {'sigma_w','sigma_k'};
+param2set2zero = {'sigma_w','sigma_k','mu_kappa'};
 
 % Baseline case:
 [uncond_r,uncond_rn,uncond_TPr,uncond_TPrn,uncond_IRP,...
     all_stdv_r,all_stdv_rn,all_stdv_TPr,all_stdv_TPrn,all_stdv_IRP] =...
     compute_uncond_yds_TP(model_sol,H);
-
-
 
 % Create LaTeX table
 
@@ -42,7 +39,7 @@ latexTable = [latexTable '&&' str_maturities '&&' str_maturities '&&' str_maturi
 latexTable = [latexTable '\\ && \multicolumn{' num2str(3*nb_maturity+2) '}{c}{\bf{A. Unconditional means of term premiums}}\\ \hline '];
 
 % Baseline term premiums:
-latexTable = [latexTable 'Baseline &'];
+latexTable = [latexTable 'baseline &'];
 % Nominal:
 for i = 1:nb_maturity
     latexTable = [latexTable ' & ' sprintf(Format,...
@@ -68,15 +65,33 @@ for(iii = 1:max(size(param2set2zero)))
     % first entry of line:
     indic_param = find(strcmp(model_sol.names_param,param2set2zero(iii)));
     name_latex = model_sol.names_param_Latex{indic_param};
-    latexTable = [latexTable '$' erase(name_latex,'$') '=0$ &' ];
+    %latexTable = [latexTable '$' erase(name_latex,'$') '=0$ &' ];
 
-    % Mofify model and compute TPs:
+    % Modify model and compute TPs:
     model_sol_new = model_sol;
-    model_sol_new.param(indic_param) = -10;
-%     if indic_param == 19
-%         model_sol_new.param(indic_param) = 0;
-%     end
-    model_sol_new     = make_model_sol(model_sol_new);
+  
+    if strcmp(param2set2zero(iii),'sigma_w')
+        model_sol_new.param(indic_param) = -Inf;
+        indic_param = find(strcmp(model_sol.names_param,'sigma_m'));
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'constant RA &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'sigma_k')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'constant $corr(\pi,c)$ &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'mu_kappa')
+        model_sol_new.param(indic_param) = 0;
+        indic_param = find(strcmp(model_sol.names_param,'sigma_k'));
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'zero $corr(\pi,c)$ &' ];
+    end
+
+    % avoid recalculation of endogenous parameters
+    endo_flag = 0;
+    model_sol_new = make_model_sol(model_sol_new,endo_flag);
 
     % Compute term premiums:
     [uncond_r_new,uncond_rn_new,uncond_TPr_new,uncond_TPrn_new,uncond_IRP_new,...
@@ -110,7 +125,7 @@ latexTable = [latexTable ' \hline '];
 latexTable = [latexTable '\\ && \multicolumn{' num2str(3*nb_maturity+2) '}{c}{\bf{B. Unconditional standard deviation of term premiums}}\\ \hline '];
 
 % Baseline term premiums:
-latexTable = [latexTable 'Baseline &'];
+latexTable = [latexTable 'baseline &'];
 % Nominal:
 for i = 1:nb_maturity
     latexTable = [latexTable ' & ' sprintf(Format,...
@@ -137,15 +152,33 @@ for(iii = 1:max(size(param2set2zero)))
     % first entry of line:
     indic_param = find(strcmp(model_sol.names_param,param2set2zero(iii)));
     name_latex = model_sol.names_param_Latex{indic_param};
-    latexTable = [latexTable '$' erase(name_latex,'$') '=0$ &' ];
+    %latexTable = [latexTable '$' erase(name_latex,'$') '=0$ &' ];
 
-    % Mofify model and compute TPs:
+    % Modify model and compute TPs:
     model_sol_new = model_sol;
-    model_sol_new.param(indic_param) = -10;
-%     if indic_param == 19
-%         model_sol_new.param(indic_param) = 0;
-%     end
-    model_sol_new     = make_model_sol(model_sol_new);
+    
+    if strcmp(param2set2zero(iii),'sigma_w')
+        model_sol_new.param(indic_param) = -Inf;
+        indic_param = find(strcmp(model_sol.names_param,'sigma_m'));
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'constant RA &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'sigma_k')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'constant $corr(\pi,c)$ &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'mu_kappa')
+        model_sol_new.param(indic_param) = 0;
+        indic_param = find(strcmp(model_sol.names_param,'sigma_k'));
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'zero $corr(\pi,c)$ &' ];
+    end
+
+    % avoid recalculation of endogenous parameters
+    endo_flag = 0;
+    model_sol_new = make_model_sol(model_sol_new,endo_flag);
 
     % Compute term premiums:
     [uncond_r_new,uncond_rn_new,uncond_TPr_new,uncond_TPrn_new,uncond_IRP_new,...
@@ -176,14 +209,14 @@ end
 
 latexTable = [latexTable '\hline \end{tabular}'];
 
-
-% Save LaTeX table to a file
-latexFileName = 'Tables/table_decompTP.tex';
-fid = fopen(latexFileName, 'w');
-fprintf(fid, '%s', latexTable);
-fclose(fid);
-
-disp(['LaTeX table of descriptive statistics saved as ' latexFileName]);
+if indic_save_output == 1
+    % Save LaTeX table to a file
+    latexFileName = 'Tables/table_decompTP.tex';
+    fid = fopen(latexFileName, 'w');
+    fprintf(fid, '%s', latexTable);
+    fclose(fid);
+    disp(['LaTeX table of descriptive statistics saved as ' latexFileName]);
+end
 
 
 

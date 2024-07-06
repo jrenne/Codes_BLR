@@ -1,18 +1,17 @@
-
+% Plot fit of measured variables:
+T = size(Data_StateSpace.dataset,1);
+n_X = size(model_sol.PhiQ,1);
+n_Z = size(model_sol.Phi_Z,1);
+n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
 
 % Prepare the state space model:
 [StateSpace,xi_00,P_00,~,~,~,~,~,~,...
     eta0r,eta1r,eta0rn,eta1rn] = prepare_State_Space(model_sol,Data_StateSpace);
 
 % Employ Kalman filter:
-[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
+[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00,n_X);
 %[all_xi_tt,all_P_tt] = kalman_smoother(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
 
-% Plot fit of measured variables:
-T = size(Data_StateSpace.dataset,1);
-n_X = size(model_sol.PhiQ,1);
-n_Z = size(model_sol.Phi_Z,1);
-n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
 
 fitted_variables =  ones(T,1) * StateSpace.A + all_xi_tt * StateSpace.H;
 
@@ -25,7 +24,7 @@ for(i = 1:size(Data_StateSpace.dataset,2))
     subplot(4,4,count);
     plot(dates,[fitted_variables(:,i) Data_StateSpace.dataset(:,i)]);
     title(names_of_variables{i});
-    if names_of_variables{i} == "CPI all "
+    if names_of_variables{i} == "CPI inflation"
         title("inflation (trend in blue, cycle in green)");
         hold on
         plot(dates,100 * all_xi_tt(:,n_X+1),'-b');
@@ -107,7 +106,7 @@ title('f(k)^2 in blue (variance share, demand), g(k)^2 in blue [k in yellow]')
 %  inflation
 
 H = 4;
-[E,V,A,B,Theta0,Theta1,AH,BH,Theta0H,Theta1H] = compute_EV(model_sol,H);
+[E,V,A,B,Theta0H,Theta1H,AH,BH] = compute_EV(model_sol,H);
 
 % Compute conditional covariance matrices:
 condCov = ones(T,1) * Theta0H' + all_xi_tt * Theta1H';

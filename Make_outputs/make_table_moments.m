@@ -46,10 +46,11 @@ end
 
 latexTable = [latexTable '\hline \end{tabular}'];
 
-% Save LaTeX table to a file
-latexFileName = 'Tables/table_moments.tex';
-fid = fopen(latexFileName,'w');
-fprintf(fid, '%s', latexTable);
-fclose(fid);
-
-disp(['LaTeX table of descriptive statistics saved as ' latexFileName]);
+if indic_save_output == 1
+    % Save LaTeX table to a file
+    latexFileName = 'Tables/table_moments.tex';
+    fid = fopen(latexFileName,'w');
+    fprintf(fid, '%s', latexTable);
+    fclose(fid);
+    disp(['LaTeX table of descriptive statistics saved as ' latexFileName]);
+end

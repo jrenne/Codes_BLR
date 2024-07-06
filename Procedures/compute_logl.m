@@ -1,9 +1,9 @@
 function[distance] = compute_logl(sub_parameters,Data_StateSpace,model,indic_add_moments)
-% This functions computes the distance between model-implied moments and targets.
+% This functions computes the log-likelihood and adds possible distance/penalty terms
 
 global max_abs_param moments;
 
-[logl,A4r,B4r,A4rn,B4rn,C4rn,D4rn,model_sol_new] = compute_logl_aux(sub_parameters,Data_StateSpace,model);
+[logl,~,A4r,B4r,A4rn,B4rn,C4rn,D4rn,model_sol_new] = compute_logl_aux(sub_parameters,Data_StateSpace,model);
 
 % Add moment-based term in distance
 if indic_add_moments == 1
@@ -13,9 +13,9 @@ if indic_add_moments == 1
     distance = mim - targets;
     
     % Special treatment for min and max:
-    indic_set2zero = find((distance>0).*(moments.indic_min==1));
+    indic_set2zero = (distance>0).*(moments.indic_min==1);
     distance(indic_set2zero) = 0;
-    indic_set2zero = find((distance<0).*(moments.indic_max==1));
+    indic_set2zero = (distance<0).*(moments.indic_max==1);
     distance(indic_set2zero) = 0;
 
     distance = 100*(distance.^2).*moments.weights;

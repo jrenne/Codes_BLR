@@ -60,6 +60,18 @@ vec_z(2) = 1;
 %     'inflation'
 vec_pi  = [model_sol.mu_piX;model_sol.mu_piZ;model_sol.mu_piXX];
 
+%     'pi star'
+vec_pi_star  = 0 * vec_pi;
+vec_pi_star(n_X+1) = 1;
+
+%     '1-period nominal bond'
+maturity_in_years_BILL10 = .25;
+vec_1pnombond = loadings4rn(:,frequency*maturity_in_years_BILL10);
+
+%     '40-period nominal bond' 
+maturity_in_years_BOND10 = 10 ;
+vec_10ynombond = loadings4rn(:,frequency*maturity_in_years_BOND10);
+
 % ---- SPFs ----
 I_PhiY_1     = (eye(n_Y) - B1)^(-1);
 H = frequency * 10; % horizon of SPFs
@@ -72,41 +84,69 @@ for h = 1:H
     Amean = Amean + 1/H * Ah;
     Bmean = Bmean + 1/H * Bh;
 end
-%  E(inflation 10 years) [measurement variable: Philly Fed SPF]
+
+%  E(inflation 10 years) [measurement variable CPI10: Philly Fed SPF]
 vec_cpi_10y  = Bmean' * vec_pi ;
 cons_cpi_10y = model_sol.mu_pi0 + Amean' * vec_pi ;
-%  E(GDP growth 10 years) [measurement variable: Philly Fed SPF]
+
+%  E(GDP growth 10 years) [measurement variable GDP10: Philly Fed SPF]
 vec_GDP_10y  = Bmean' * vec_dc ;
 cons_GDP_10y = model_sol.mu_c0 + Amean' * vec_dc ;
-%  E(BOND 10 years) [measurement variable: Philly Fed SPF]
-maturity_in_years_BOND10 = 10 ;
-vec_BOND10  = Bmean' * loadings4rn(:,frequency*maturity_in_years_BOND10) ;
-cons_BOND10 = A4rn(frequency*maturity_in_years_BOND10) + Amean' * vec_BOND10 ;
-%  E(BILL10 years) [measurement variable: Philly Fed SPF]
-maturity_in_years_BILL10 = .25;
-vec_BILL10  = Bmean' * loadings4rn(:,frequency*maturity_in_years_BILL10) ;
-cons_BILL10 = A4rn(frequency*maturity_in_years_BILL10) + Amean' * vec_BILL10 ;
 
+%  E(BOND 10 years) [measurement variable BOND10: Philly Fed SPF]
+vec_BOND10  = Bmean' * vec_10ynombond ;
+cons_BOND10 = A4rn(frequency*maturity_in_years_BOND10) + Amean' * vec_10ynombond ;
 
-StateSpace.R      = diag(Data_StateSpace.stdv_measur.^2);
+%  E(BILL10 years) [measurement variable BILL10: Philly Fed SPF]
+vec_BILL10  = Bmean' * vec_1pnombond ;
+cons_BILL10 = A4rn(frequency*maturity_in_years_BILL10) + Amean' * vec_1pnombond ;
 
-StateSpace.A      = [100*model_sol.mu_c0 100*model_sol.mu_pi0 0 ...
+% survey-implied 10-year real term premium
+H = frequency * 10;
+cons_SurveyRTP10 = A4r(H) - (cons_BILL10 - frequency * cons_cpi_10y);
+vec_SurveyRTP10  = loadings4r(:,H) - (vec_BILL10 - frequency * vec_cpi_10y);
+
+% ---- FRB-US ----
+
+H = frequency * 10; % horizon for ptr and rtr
+Along = I_PhiY_1 * (eye(n_Y) - B1^H) * A1;
+Blong = B1^H;
+
+%  E(inflation) in 10 years [measurement variable: PTR] take into account CPI-PCE difference
+CPI_PCE = 0.11; % ~ mean(data(:,4)-data(:,6));
+vec_ptr = Blong' * vec_pi_star ;
+cons_ptr = (model_sol.mu_pi0 - CPI_PCE/100) + Along' * vec_pi_star ;
+
+%  E(1p nominal bond) in 10 years [measurement variable: RTR]
+vec_rtr  = Blong' * vec_1pnombond;
+cons_rtr = A4rn(frequency*maturity_in_years_BILL10) + Along' * vec_1pnombond ;
+
+%% State space
+
+%StateSpace.R      = diag(Data_StateSpace.stdv_measur.^2);
+StateSpace.R      = Data_StateSpace.stdv_measur.^2;
+
+StateSpace.A      = [100*model_sol.mu_c0 100*model_sol.mu_pi0 100*0 ...
     100*A4rn(maturities) ...
     100*A4r(maturities_real) ...
-    100 * frequency * cons_cpi_10y ...%100 * frequency * cons_GDP_10y ...
-    100 * cons_BOND10,...
-    100 * cons_BILL10];
-StateSpace.H      = [100*vec_dc 100*vec_pi vec_z ...
+    100 * cons_rtr ...
+    100 * frequency *cons_ptr ...
+    100 * cons_BILL10 ...
+    100 * frequency * cons_cpi_10y];
+%    100 * cons_SurveyRTP10
+%    100 * frequency * cons_GDP_10y ...
+%    100 * cons_BOND10 ...
+%    100 * cons_BILL10];
+StateSpace.H      = [100*vec_dc 100*vec_pi 100*vec_z ...
     100*loadings4rn(:,maturities) ...
     100*loadings4r(:,maturities_real) ...
-    100 * frequency * vec_cpi_10y ...%100 * frequency * vec_GDP_10y ...
-    100 * vec_BOND10,...
-    100 * vec_BILL10];
+    100 * vec_rtr ...
+    100 * frequency *vec_ptr ...
+    100 * vec_BILL10 ...
+    100 * frequency * vec_cpi_10y];
+%    100 * vec_SurveyRTP10
+%    100 * frequency * vec_GDP_10y ...
+%    100 * vec_BOND10 ...
+%    100 * vec_BILL10];
 
 StateSpace.option = n_X;
-
-
-
-
-
-

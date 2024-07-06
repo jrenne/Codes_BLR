@@ -8,7 +8,7 @@
 
 % Employ Kalman filter:
 n_X = size(model_sol.PhiQ,1);
-[all_xi_tt,all_P_tt,logl] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00,n_X);
+[all_xi_tt,all_P_tt,logl,logl_t] = kalman(StateSpace,Data_StateSpace.dataset,xi_00,P_00,n_X);
 %[all_xi_tt,all_P_tt] = kalman_smoother(StateSpace,Data_StateSpace.dataset,xi_00,P_00);
 
 % Plot fit of measured variables:
@@ -25,13 +25,12 @@ XX = all_xi_tt(:,(n_X+n_Z+1):end);
 [X_TP,TXT_TP,~] = xlsread('Data/TermPremiaUSForCheck.xlsx','TP_Comparison_US');
 TP_sel = [4,5,8,9]; % TP_05y_ACM, TP_05y_KW, TP_10y_ACM, TP_10y_KW
 TP_label = TXT_TP(1,TP_sel-1);
-TP = nan(T,length(TP_sel));
-delay = 8; %the TP data set starts 8 quarters later
-TP(delay+1:end,:) = X_TP(1:T-delay,TP_sel); 
+% Last observation refers to Q4 2019
+TP = X_TP(end-T+1:end,TP_sel);
 
-indic_variable = find(strcmp(data_names,"YIELD10"));
+indic_variable = strcmp(data_names,"YIELD10");
 YIELD10 = data(:,indic_variable);
-indic_variable = find(strcmp(data_names,"YIELD05"));
+indic_variable = strcmp(data_names,"YIELD05");
 YIELD05 = data(:,indic_variable);
 
 maturities_in_year = [5;10];
@@ -52,8 +51,7 @@ nom_yields  = 100 * frequency * (ones(T,1)*A4rn + X * B4rn + Z * C4rn + XX * D4r
 real_yields_P = 100 * frequency * (ones(T,1)*APr + all_xi_tt * BPr);
 nom_yields_P  = 100 * frequency * (ones(T,1)*APrn + all_xi_tt * BPrn);
 
-figure('Name','TP comparison', ...
-    'WindowState','maximized');
+figure('Name','TP comparison', 'WindowState','maximized');
 
 subplot(2,2,1);
 plot(dates,nom_yields(:,frequency*maturities_in_year(1)), 'k-', 'LineWidth', 2);
@@ -62,57 +60,71 @@ hold on;
 plot(dates, nom_yields_P(:, frequency * maturities_in_year(1)), ...
     '--', 'LineWidth', 2,'Color', [.5 .5 .5]);
 plot(dates,YIELD05,'x', 'LineWidth', 2,'Color','black');
-title('5-year yields',...%'Interpreter', 'latex', 'FontSize', 20);
-    'FontSize', 20);
-% Add legend with increased FontSize
-legend('Fitted yield', 'Model-implied expectation component','Data',...
-    'Location', 'northeast', 'FontSize', 16);
+title('5-year yields','FontSize', 14);
+legend('Fitted yield', 'Model-implied expectation component','Data','Location', 'northeast', 'FontSize', 11);
 grid on;
-set(gca, 'FontSize', 16); % increase size of ticks labels
+set(gca, 'FontSize', 15); % increase size of ticks labels
 
 subplot(2,2,2);
 plot(dates,nom_yields(:,frequency*maturities_in_year(1))-...
-    nom_yields_P(:,frequency*maturities_in_year(1)), 'b-', 'LineWidth', 2);  % Blue and thick
+    nom_yields_P(:,frequency*maturities_in_year(1)), 'k-', 'LineWidth', 2);  % Blue and thick
 hold on;
-plot(dates,TP(:,1), 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2);  % Grey and thick
+plot(dates,TP(:,1), 'b-.', 'LineWidth', 2);  % Grey and thick
 plot(dates,TP(:,2), 'r--', 'LineWidth', 2);  % Red and thick
-legend('BLR','KW','ACM','Location', 'northeast', 'FontSize', 16);
-title('5-year term premiums', 'FontSize', 20);
+legend('BLR','KW','ACM','Location', 'northeast', 'FontSize', 11);
+title('5-year term premiums', 'FontSize', 14);
 grid on
-set(gca, 'FontSize', 16); % increase size of ticks labels
+set(gca, 'FontSize', 15); % increase size of ticks labels
 
 subplot(2,2,3);
 plot(dates,nom_yields(:,frequency*maturities_in_year(2)), 'k-', 'LineWidth', 2);
 hold on;
 % Plot the second line with grey color and dotted style
-plot(dates, nom_yields_P(:, frequency * maturities_in_year(2)), ...
-    '--', 'LineWidth', 2,'Color', [.5 .5 .5]);
+plot(dates, nom_yields_P(:, frequency * maturities_in_year(2)),'--', 'LineWidth', 2,'Color', [.5 .5 .5]);
 plot(dates,YIELD10,'x', 'LineWidth', 2,'Color','black');
-title('10-year yields', 'FontSize', 20);
-% Add legend with increased FontSize
-legend('Fitted yield', 'Model-implied expectation component','Data',...
-    'Location', 'northeast', 'FontSize', 16);
+title('10-year yields', 'FontSize', 14);
+legend('Fitted yield', 'Model-implied expectation component','Data','Location', 'northeast', 'FontSize', 11);
 grid on;
-set(gca, 'FontSize', 16); % increase size of ticks labels
-
+set(gca, 'FontSize', 15); % increase size of ticks labels
 
 subplot(2,2,4);
 plot(dates,nom_yields(:,frequency*maturities_in_year(2))-...
-    nom_yields_P(:,frequency*maturities_in_year(2)), 'b-', 'LineWidth', 2);  % Blue and thick
+    nom_yields_P(:,frequency*maturities_in_year(2)), 'k-', 'LineWidth', 2);  % Blue and thick
 hold on;
-plot(dates,TP(:,3), 'Color', [0.5, 0.5, 0.5], 'LineWidth', 2);  % Grey and thick
+plot(dates,TP(:,3), 'b-.', 'LineWidth', 2);  % Grey and thick
 plot(dates,TP(:,4), 'r--', 'LineWidth', 2);  % Red and thick
-legend('BLR','KW','ACM','Location', 'northeast', 'FontSize', 16);
-title('10-year term premiums', 'FontSize', 20);
+legend('BLR','KW','ACM','Location', 'northeast', 'FontSize', 11);
+title('10-year term premiums', 'FontSize', 14);
 grid on;
-set(gca, 'FontSize', 16); % increase size of ticks labels
-
+set(gca, 'FontSize', 15); % increase size of ticks labels
 hold off;
 
-% Save the figure in EPS format
-epsFileName = 'Figures/figure_TP.eps';
-saveas(gcf, epsFileName, 'epsc');
+if indic_save_output == 1
+    % Save the figure in EPS format
+    epsFileName = 'Figures/figure_TP.eps';
+    saveas(gcf, epsFileName, 'epsc');
+    
+    % Display a message confirming the save
+    disp(['Figure saved as ' epsFileName]);
+end
 
-% Display a message confirming the save
-disp(['Figure saved as ' epsFileName]);
+%% Slide version
 
+figure;
+plot(dates,nom_yields(:,frequency*maturities_in_year(2))-...
+    nom_yields_P(:,frequency*maturities_in_year(2)), 'k-', 'LineWidth', 2);  % Blue and thick
+hold on;
+plot(dates,TP(:,3), 'b-.', 'LineWidth', 2);  % Grey and thick
+plot(dates,TP(:,4), 'r--', 'LineWidth', 2);  % Red and thick
+legend('BLR','KW','ACM','Location', 'northeast', 'FontSize', 11);
+grid on;
+set(gca, 'FontSize', 12); % increase size of ticks labels
+
+if indic_save_output == 1
+    % Save the figure in EPS format
+    epsFileName = 'Figures/figure_TP_slide.eps';
+    saveas(gcf, epsFileName, 'epsc');
+    
+    % Display a message confirming the save
+    disp(['Figure saved as ' epsFileName]);
+end

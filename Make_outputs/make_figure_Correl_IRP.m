@@ -1,9 +1,10 @@
 % =========================================================================
-% Figure showing inflation risk premium
+% Figure showing inflation risk premium & consumption-inflation correlation
 % =========================================================================
 
 maturities_in_year = [5;10];
 H = max(frequency*maturities_in_year);
+T = size(Data_StateSpace.dataset,1);
 
 % Compute model-implied term premiums:
 [A,B,A4r,B4r] = compute_AB(model_sol,H);
@@ -29,86 +30,63 @@ B4rn  = [B4rn;C4rn;D4rn];
 B4Pr  = BPr;
 B4Prn = BPrn;
 
-%B4IRP = (B4rn - B4r) - (B4Prn - B4Pr);
-%IRP = 100 * frequency * all_xi_tt * diag(B4IRP(:,40));
-%plot(IRP(:,1));
-%plot(IRP * ones(22,1));
-
 % Compute Inflation / Growth correlation:
-
-indic_k = 5;
-
-T = size(Data_StateSpace.dataset,1);
 n_X = size(model_sol.PhiQ,1);
 n_Z = size(model_sol.Phi_Z,1);
-n_Y = n_X + n_Z + n_X * (n_X + 1)/2;
-% Compute conditional correlation:
-H = 4;
-[Theta0H,Theta1H] = compute_condCov(model_sol,H);
 
-% Compute conditional covariance matrices:
-condCov = ones(T,1) * Theta0H' + all_xi_tt * Theta1H';
+% Compute conditional correlation:
+horiz_condCorrel = 1;
+Y = all_xi_tt;
 
 %     'GDP growth'
 n_Y = size(all_xi_tt,2);
 vec_dc        = zeros(n_Y,1);
 vec_dc(1:n_X) = model_sol.mu_c1;
 
-%     'output gap'
-vec_z    = zeros(n_Y,1);
-vec_z([2,3]) = 1;
-
 %     'inflation'
 vec_pi  = [model_sol.mu_piX;model_sol.mu_piZ;model_sol.mu_piXX];
 
-coVar = condCov .* (ones(T,1) * kron(vec_dc',vec_pi'));
-coVar = coVar * ones(n_Y^2,1);
-
-var_dc = condCov .* (ones(T,1) * kron(vec_dc',vec_dc'));
-var_dc = var_dc * ones(n_Y^2,1);
-
-var_pi = condCov .* (ones(T,1) * kron(vec_pi',vec_pi'));
-var_pi = var_pi * ones(n_Y^2,1);
-
-condCorrel = 100*coVar ./ (sqrt(var_pi) .* sqrt(var_dc));
+[~,condCorrel]     = compute_condCorrel(model_sol,horiz_condCorrel,vec_dc,vec_pi,Y);
 
 
 figure;
 
 yyaxis left
-plot(dates, 100 * inflation_RP(:,frequency*maturities_in_year(1)), 'b-', 'LineWidth', 1.5);
+plot(dates, 100 * inflation_RP(:,frequency*maturities_in_year(2)), 'b-', 'LineWidth', 2);
+hold on;
+plot(dates, 100 * inflation_RP(:,frequency*maturities_in_year(1)), 'b:','LineWidth', 2);
 ylabel('Inflation risk premium, in bps','Color','b');
+yticks(-300:150:300);
+ylim([min(yticks),max(yticks)]);
 
 yyaxis right
-plot(dates, condCorrel,'r-', 'LineWidth', 1.5);
-ylabel('Conditional correlation, in percent','Color','r');
-ylim([-12,12]);
+plot(dates, condCorrel,'r', 'LineWidth', 2);
+ylabel('Conditional correlation','Color','r');
+yticks(-1:0.5:1);
+ylim([min(yticks),max(yticks)]);
+hold off;
 
-% Plot risk aversion
-%hold on;
-%hold off;
+set(gca, 'FontSize', 12); % increase size of ticks labels
 
+% % Shade NBER recession periods
+% for i = 1:length(recessionStarts)
+%     recessionPeriod = [recessionStarts(i), recessionEnds(i)];
+%     xPatch = [recessionPeriod(1), recessionPeriod(2), recessionPeriod(2), recessionPeriod(1)];
+%     yPatch = [min(ylim), min(ylim), max(ylim), max(ylim)];
+%     patch(xPatch, yPatch, 'r', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+% end
 
-% Shade NBER recession periods
-for i = 1:length(recessionStarts)
-    recessionPeriod = [recessionStarts(i), recessionEnds(i)];
-    xPatch = [recessionPeriod(1), recessionPeriod(2), recessionPeriod(2), recessionPeriod(1)];
-    yPatch = [min(ylim), min(ylim), max(ylim), max(ylim)];
-    patch(xPatch, yPatch, 'r', 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-end
-
-legend('5-year Inflation risk premium','Conditional correlation',...
-    'Location', 'best', 'FontSize', 12);
+legend('10-year IRP','5-year IRP','Conditional correlation','Location', 'northeast', 'FontSize', 11);
 
 % Customize plot
 xlabel('Date');
 grid on;
 
-
-% Save the figure in EPS format
-epsFileName = 'Figures/figure_Correl_IRP.eps';
-saveas(gcf, epsFileName, 'epsc');
-
-% Display a message confirming the save
-disp(['Figure saved as ' epsFileName]);
-
+if indic_save_output == 1
+    % Save the figure in EPS format
+    epsFileName = 'Figures/figure_Correl_IRP.eps';
+    saveas(gcf, epsFileName, 'epsc');
+    
+    % Display a message confirming the save
+    disp(['Figure saved as ' epsFileName]);
+end

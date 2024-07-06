@@ -202,13 +202,13 @@ legend(['without hysteresis effect $(\rho_{gz} =' num2str(vec_rho_gz(1)) ')$'], 
     ['with hysteresis effect $(\rho_{gz} =' num2str(vec_rho_gz(2)) ')$'],...
     'Location', 'northwest', 'Interpreter', 'latex', 'FontSize', 15);
 
-
-% Save the figure in EPS format
-epsFileName = 'Figures/figure_slope_RA.eps';
-saveas(gcf, epsFileName, 'epsc');
-
-% Display a message confirming the save
-disp(['Figure saved as ' epsFileName]);
-
+if indic_save_output == 1
+    % Save the figure in EPS format
+    epsFileName = 'Figures/figure_slope_RA.eps';
+    saveas(gcf, epsFileName, 'epsc');
+    
+    % Display a message confirming the save
+    disp(['Figure saved as ' epsFileName]);
+end
 
 

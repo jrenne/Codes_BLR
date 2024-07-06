@@ -15,19 +15,44 @@ elseif frequency == 4
     [X,TXT,~] = xlsread('Data/US_data_matlab.xlsx','quarterly');
     X(:,2:3) = X(:,2:3)./repmat(X(:,4),1,2); % calculate per-capita consumption
     X(:,26:27) = X(:,26:27)./repmat(X(:,4),1,2); % calculate per-capita GDP
-    X = X(1:end-8,:); % stop in Q4 2019
+    X = X(9:end-8,:); % start in Q2 1961 stop in Q4 2019
+
+    % %Updated file
+    % [X,TXT,~] = xlsread('Data/US_data_matlab_updated.xlsx','quarterly');
+    % X(:,2:3) = X(:,2:3)./repmat(X(:,4),1,2); % calculate per-capita consumption
+    % X(:,26:27) = X(:,26:27)./repmat(X(:,4),1,2); % calculate per-capita GDP
+    % X = X(9:end,:); % start in Q2 1961 stop in Q4 2023
 end
 
 data_names = TXT(1,2:end); % save variable names
+
+indic_name = strcmp(data_names,'Real consumption of all goods and services');
+data_names(indic_name) = {'Consumption growth'};
+
+indic_name = strcmp(data_names,'CPI all');
+data_names(indic_name) = {'CPI inflation'};
+
 dates = x2mdate(X(2:end,1),0,'datetime'); % save date column
-data = (log(X(2:end,2:9)) - log(X(1:end-1,2:9)))*100; % calculate annualised period-on-period growth rates
+data = (log(X(2:end,2:9)) - log(X(1:end-1,2:9)))*100; % calculate period-on-period growth rates
 data(:,9:24) = X(2:end,10:25); % yields
 data(:,25:26)= (log(X(2:end,26:27)) - log(X(1:end-1,26:27)))*100; % real GDP (+ potential)
 
 % SPF data:
 data(:,27:33) = X(2:end,28:34);
 
-[num_obs, num_var] = size(data); % determine sample size (observations x variables)
+for i = 31:33 % interpolate 'BILL10','RGDP10','BOND10'
+    x = data(:,i);
+    nanx = isnan(x);
+    t    = 1:numel(x);
+    x(nanx) = interp1(t(~nanx), x(~nanx), t(nanx));
+    data(:,i) = x;
+end
+
+% FRB/US: PTR, RRTR, RTR
+data(:,34:36) = X(2:end,35:37);
+
+% Backcasted real rates:
+data(:,37:38) = X(2:end,38:39);
 
 % Calculate slopes:
 data(:,end+1) = data(:,15) - data(:,11); % nominal 10y - 2y 
@@ -36,41 +61,49 @@ data(:,end+1) = data(:,end-1) - data(:,end); % BEIR 10y - 2y
 data_names(end+1) = {'nominal slope'};
 data_names(end+1) = {'real slope'};
 data_names(end+1) = {'BEIR slope'};
-num_var = num_var + 3;
 
 % Add output gap:
-data(:,end+1) = log(X(2:end,26)./X(2:end,27));
-data_names(end+1) = {'output gap'};
-num_var = num_var + 1;
+data(:,end+1) = log(X(2:end,26)./X(2:end,27))*100;
+data_names(end+1) = {'Output gap'};
 
 % Add 10-year term premium:
 data(:,end+1) = data(:,15) - data(:,30);
 data_names(end+1) = {'10-year nom. term premium'};
-num_var = num_var + 1;
 
-% Plot autocorrelation functions
-data_acf = nan(21,num_var);
-figure('Name','Autocorrelations','WindowState','maximized');
-for v = 1:num_var
-    subplot(7,7,v);
-    [data_acf(:,v),~,~,~] = autocorr(data(:,v));
-    title(data_names{v});
-end
+% Add survey-based 10-year real term premium
+data(:,end+1) = data(:,37) - (data(:,31) - data(:,30));
+%data(:,end+1) = data(:,22) - (data(:,31) - data(:,30));
+data_names(end+1) = {'SurveyRTP10'};
 
-% Plot all data
-figure('Name','Data','WindowState','maximized');
-for v = 1:num_var
-    subplot(7,7,v);
-    % detect if sparse data:
-    sparse_data = (sum((~isnan(data(2:end,v))).*(~isnan(data(1:(end-1),v))))==0);
-    if sparse_data
-        plot(dates,data(:,v),'o');
-    else
-        plot(dates,data(:,v));
-    end
-    title(data_names{v});
-    xlim([dates(1) dates(end)]);
-end
+% Add survey-based 10-year inflation risk premium
+data(:,end+1) = data(:,15) - data(:,37) - data(:,30);
+data_names(end+1) = {'SurveyIRP10'};
+
+[num_obs, num_var] = size(data); % determine sample size (observations x variables)
+
+% % Plot autocorrelation functions
+% data_acf = nan(21,num_var);
+% figure('Name','Autocorrelations','WindowState','maximized');
+% for v = 1:num_var
+%     subplot(7,7,v);
+%     [data_acf(:,v),~,~,~] = autocorr(data(:,v));
+%     title(data_names{v});
+% end
+
+% % Plot all data
+% figure('Name','Data','WindowState','maximized');
+% for v = 1:num_var
+%     subplot(7,7,v);
+%     % detect if sparse data:
+%     sparse_data = (sum((~isnan(data(2:end,v))).*(~isnan(data(1:(end-1),v))))==0);
+%     if sparse_data
+%         plot(dates,data(:,v),'o');
+%     else
+%         plot(dates,data(:,v));
+%     end
+%     title(data_names{v});
+%     xlim([dates(1) dates(end)]);
+% end
 
 % % Plot average yield curves
 % figure('Name','Term structures','WindowState','maximized');
@@ -97,13 +130,14 @@ data_corr = corr(data,'rows','pairwise'); %pairwise correlations ignoring NAN-va
 
 % Sample recession periods (replace with actual recession periods)
 recessionDates = [
-    datetime('01-Jan-1970'), datetime('30-Nov-1970');
-    datetime('01-Dec-1973'), datetime('31-Mar-1975');
+    datetime('01-Dec-1969'), datetime('30-Nov-1970');
+    datetime('01-Nov-1973'), datetime('31-Mar-1975');
     datetime('01-Jan-1980'), datetime('31-Jul-1980');
     datetime('01-Jul-1981'), datetime('30-Nov-1982');
     datetime('01-Jul-1990'), datetime('31-Mar-1991');
     datetime('01-Mar-2001'), datetime('30-Nov-2001');
     datetime('01-Dec-2007'), datetime('30-Jun-2009');
+    datetime('01-Feb-2020'), datetime('30-Apr-2020');
 ];
 recessionStarts = recessionDates(:,1);
 recessionEnds   = recessionDates(:,2);
@@ -119,5 +153,5 @@ data_bis = data;
 data_bis(indic_TIPSnan,indic_fst_nom_yield:indic_lst_nom_yield) = nan;
 indic_nom_slope = find(strcmp(data_names,{'nominal slope'}));
 data_bis(indic_TIPSnan,indic_nom_slope) = nan;
-indic_inflation = find(strcmp(data_names,{'CPI all '}));
+indic_inflation = find(strcmp(data_names,{'CPI inflation'}));
 data_bis(indic_TIPSnan,indic_inflation) = nan;

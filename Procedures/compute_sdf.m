@@ -20,9 +20,6 @@ lambda0 = ((1 - mu_gamma0) * delta * (Id - delta * Phi')^(-1) * Phi'...
     - mu_gamma0 * Id)* mu_c1;
 lambda1 = - mu_gamma1 * mu_c1' * (delta * Phi * (Id - delta * Phi)^(-1) + Id);
 
-% lambda0 = ((1 - mu_gamma0) * delta * (Id - delta * Phi')^(-1) * Phi' - Id)* mu_c1;
-% lambda1 = - delta * mu_gamma1 * mu_c1' * Phi * (Id - delta * Phi)^(-1);
-
 eta0star = - log(delta) + mu_c0 + .5 * mu_c1' * Sigma * (Sigma') * mu_c1 +...
     lambda0' * Sigma * (Sigma') * mu_c1;
 eta1star =  (lambda1 * Sigma * (Sigma') + Phi') * mu_c1 ;
