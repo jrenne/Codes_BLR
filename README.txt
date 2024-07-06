@@ -6,6 +6,8 @@ Replication package for
 
 By Tilman Bletzinger, Wolfgang Lemke, and Jean-Paul Renne.
 
+The paper is available at: https://www.jprenne.com/papers/paper_BLR/
+
 Disclaimer: The views expressed in this paper are those of the authors and do not necessarily reflect those of the European Central Bank.
 
 Corresponding author: Jean-Paul.renne@unil.ch
