@@ -13,10 +13,10 @@ indic_estim_moments = 0; % if 1, re-estimate the model
 indic_estim_MLE     = 0; % if 1, re-estimate the model
 % -------------------------------------------------------------------------
 indic_add_moments   = 0;   % minimize -logL + Moment distance
-nb_loops_moments    = 1;   % number of estimation loops - moment-fitting approach
+nb_loops_moments    = 3;   % number of estimation loops - moment-fitting approach
 nb_loops_MLE        = 30;  % number of estimation loops - MLE approach
 nb_iterations_MLE   = 100; % number of iteration for each use of the simplex
-indic_save_model    = 1;   % if == 1, then mode results are saved
+indic_save_model    = 0;   % if == 1, then mode results are saved
 indic_save_output   = 0;   % if == 1, then figures & tables are saved
 % =========================================================================
 
@@ -104,9 +104,12 @@ end
 % ========== Kalman filter estimation =====================================
 names_of_variables = {'Consumption growth',...
     'CPI inflation', 'Output gap',...
-    'YIELD3M','YIELD02','YIELD05','YIELD10','YIELD20', ... 
-    'TIPSY02','TIPSY05','REALR10','REALR20', ... % 'TIPSY10','TIPSY20',
+    'YLD3M','YLD02','YLD05','YLD10','YLD20', ...
+    'TIPSY02','TIPSY05','TIPSY10','TIPSY20', ...
     'RTR','PTR','BILL10','CPI10'};
+%    'YIELD3M','YIELD02','YIELD05','YIELD10','YIELD20', ... 
+%    'TIPSY02','TIPSY05','REALR10','REALR20', ... % 'TIPSY10','TIPSY20',
+%    'TIPSY02','REAL05','REAL10','REAL20', ...
 %    'PTR','CPI10','RTR','SurveyRTP10'};
 %    'RGDP10','BOND10','BILL10'};
 Data_StateSpace = struct;
@@ -134,15 +137,22 @@ f = @(x)compute_logl(x,Data_StateSpace,model_sol,indic_add_moments);
 if indic_estim_MLE == 1
 
     % Set optimization options:
-    options = optimset('Display','iter','PlotFcns', ...
-        @optimplotfval,'MaxIter',nb_iterations_MLE);
+    options = optimset('Display','iter','PlotFcns', @optimplotfval,'MaxIter',nb_iterations_MLE);
 
+    % First, run simplex optimiser (runs faster)
     for i = 1:nb_loops_MLE
         disp(i);
         [sub_parameters,fval] = fminsearch(f,sub_parameters,options);
     end
 
-    % % extra loops
+    % Second, iterate through simplex and gradient-based optimiser
+    for i = 1:nb_loops_MLE
+        disp(i);
+        [sub_parameters,~] = fminsearch(f,sub_parameters,options);
+        [sub_parameters,fval,~,~,~,Hessian] = fminunc(f,sub_parameters,options);
+    end
+    model_sol.Hessian = Hessian;
+
     % min_flag    = 0;
     % count_loops = 0;
     % while min_flag ~= 1
@@ -154,6 +164,7 @@ if indic_estim_MLE == 1
     %         chol(Hessian);
     %         min_flag = 1;
     %         disp(['The Hessian is positive definite. Required extra loops: ' num2str(count_loops)]);
+    %         return;
     %     catch
     %         disp(['The Hessian was not positive definite. Tried extra loops: ' num2str(count_loops)]);
     %     end

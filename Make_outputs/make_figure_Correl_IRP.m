@@ -56,7 +56,7 @@ plot(dates, 100 * inflation_RP(:,frequency*maturities_in_year(2)), 'b-', 'LineWi
 hold on;
 plot(dates, 100 * inflation_RP(:,frequency*maturities_in_year(1)), 'b:','LineWidth', 2);
 ylabel('Inflation risk premium, in bps','Color','b');
-yticks(-300:150:300);
+yticks(-400:200:400);
 ylim([min(yticks),max(yticks)]);
 
 yyaxis right

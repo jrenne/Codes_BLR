@@ -6,8 +6,6 @@ Replication package for
 
 By Tilman Bletzinger, Wolfgang Lemke, and Jean-Paul Renne.
 
-The paper is available at: https://www.jprenne.com/papers/paper_BLR/
-
 Disclaimer: The views expressed in this paper are those of the authors and do not necessarily reflect those of the European Central Bank.
 
 Corresponding author: Jean-Paul.renne@unil.ch
@@ -28,8 +26,8 @@ The output gap is log GDP minus log potential GDP (extracted from the FRED datab
 Real consumption of all goods and services is from the Bureau of Economic Analysis.
 Population is from FRED.
 CPI all items inflation is from the Bureau of Labor Statistics
-Nominal (YIELDX) and real (TIPSX) interest rates are from the updated Gürkaynak, Sack, and Wright (2007).
-Backcasted real (REALRX) interest rates are from Jan Groen and Menno Middeldorp (2013, Federal Reserve Bank of New York).
+Nominal yields (YLDX) are from Liu and Wu (2021).
+Real interest rates (TIPSX) are from the updated Gürkaynak, Sack, and Wright (2007).
 The perceived target rate of inflation (PTR) and the expected federal funds rate in the long run (RTR) are from the FRB-US model of the Federal Reserve Board.
 Survey of Professional Forecasters (SPF) data (mean of forecasts) are from the Federal Reserve Bank of Philadelphia for average inflation over the next ten years (CPI10), and the average 3-month treasury bill rate (BILL10).
 

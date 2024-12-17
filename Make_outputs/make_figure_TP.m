@@ -23,7 +23,7 @@ XX = all_xi_tt(:,(n_X+n_Z+1):end);
 
 
 [X_TP,TXT_TP,~] = xlsread('Data/TermPremiaUSForCheck.xlsx','TP_Comparison_US');
-TP_sel = [4,5,8,9]; % TP_05y_ACM, TP_05y_KW, TP_10y_ACM, TP_10y_KW
+TP_sel = [4,5,8,9]; % TP_05y_KW, TP_05y_ACM, TP_10y_KW, TP_10y_ACM
 TP_label = TXT_TP(1,TP_sel-1);
 % Last observation refers to Q4 2019
 TP = X_TP(end-T+1:end,TP_sel);

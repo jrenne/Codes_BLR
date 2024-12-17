@@ -5,7 +5,7 @@
 T = length(Data_StateSpace.dataset);
 K = length(model_sol.param);
 
-alpha = 5/100;
+alpha = 2.5/100;
 
 list_param_in_table = model_sol.names_param;
 

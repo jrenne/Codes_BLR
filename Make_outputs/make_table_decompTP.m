@@ -7,7 +7,7 @@ Format = '%0.2f';
 maturities_in_year = [2;5;10];
 H = max(frequency*maturities_in_year);
 
-param2set2zero = {'sigma_w','sigma_k','mu_kappa'};
+param2set2zero = {'sigma_w','sigma_k','mu_kappa','rho_gz','sigma_g','sigma_z'};
 
 % Baseline case:
 [uncond_r,uncond_rn,uncond_TPr,uncond_TPrn,uncond_IRP,...
@@ -87,6 +87,21 @@ for(iii = 1:max(size(param2set2zero)))
         indic_param = find(strcmp(model_sol.names_param,'sigma_k'));
         model_sol_new.param(indic_param) = -Inf;
         latexTable = [latexTable 'zero $corr(\pi,c)$ &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'rho_gz')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no hysteresis &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'sigma_g')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no trend growth &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'sigma_z')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no cyclical growth &' ];
     end
 
     % avoid recalculation of endogenous parameters
@@ -174,6 +189,22 @@ for(iii = 1:max(size(param2set2zero)))
         indic_param = find(strcmp(model_sol.names_param,'sigma_k'));
         model_sol_new.param(indic_param) = -Inf;
         latexTable = [latexTable 'zero $corr(\pi,c)$ &' ];
+    end
+
+    if strcmp(param2set2zero(iii),'rho_gz')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no hysteresis&' ];
+    end
+
+    if strcmp(param2set2zero(iii),'sigma_g')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no trend growth &' ];
+    end
+
+
+    if strcmp(param2set2zero(iii),'sigma_z')
+        model_sol_new.param(indic_param) = -Inf;
+        latexTable = [latexTable 'no cyclical growth &' ];
     end
 
     % avoid recalculation of endogenous parameters

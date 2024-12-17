@@ -31,14 +31,17 @@ T = length(Data_StateSpace.dataset);
 
 Data_StateSpace.stdv_measur = 0.1*ones(T,size(Data_StateSpace.dataset,2));
 indic_variable = find(strcmp(names_of_variables,'Output gap'));
+%indic_variable = contains(names_of_variables,{'Output gap','TIPSY'});
 Data_StateSpace.stdv_measur(:,indic_variable) = 0.2;
-indic_variable = contains(names_of_variables,'REALR');
-Data_StateSpace.stdv_measur(dates<'01-Jan-1999',indic_variable) = 0.2; %dates<'01-Jan-2004'
+% indic_variable = contains(names_of_variables,{'TIPSY','REAL'});
+% Data_StateSpace.stdv_measur(dates<'01-Jan-1999',indic_variable) = 0.2;
+% indic_variable = contains(names_of_variables,'REALR');
+% Data_StateSpace.stdv_measur(dates<'01-Jan-1999',indic_variable) = 0.2;
 indic_variable = find(strcmp(names_of_variables,'RTR'));
 Data_StateSpace.stdv_measur(dates<'01-Jul-1984',indic_variable) = 0.2;
 
 indic_date = or(dates=='01-Sep-2008',dates=='01-Dec-2008');
-indic_variable = contains(names_of_variables,{'CPI inflation','TIPSY','REALR'});
+indic_variable = contains(names_of_variables,{'CPI inflation','TIPSY'});
 Data_StateSpace.stdv_measur(indic_date,indic_variable) = 1.0;
 
 % Plot fit obtained with Kalman filter:

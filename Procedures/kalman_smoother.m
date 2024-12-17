@@ -15,8 +15,7 @@ function[all_xi_tT,all_P_tT] = kalman_smoother(StateSpace,DataObs,xi_00,P_00,opt
 % (this is what functionQ computes)
 % =========================================================================
 
-
-[all_xi_tt,all_P_tt] = kalman(StateSpace,DataObs,xi_00,P_00);
+[all_xi_tt,all_P_tt] = kalman(StateSpace,DataObs,xi_00,P_00,option);
 
 mu_xi = StateSpace.mu_xi;
 F     = StateSpace.F;

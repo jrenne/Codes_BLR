@@ -34,7 +34,7 @@ data_names(indic_name) = {'CPI inflation'};
 
 dates = x2mdate(X(2:end,1),0,'datetime'); % save date column
 data = (log(X(2:end,2:9)) - log(X(1:end-1,2:9)))*100; % calculate period-on-period growth rates
-data(:,9:24) = X(2:end,10:25); % yields
+data(:,9:24) = X(2:end,10:25); % GSW yields
 data(:,25:26)= (log(X(2:end,26:27)) - log(X(1:end-1,26:27)))*100; % real GDP (+ potential)
 
 % SPF data:
@@ -54,6 +54,12 @@ data(:,34:36) = X(2:end,35:37);
 % Backcasted real rates:
 data(:,37:38) = X(2:end,38:39);
 
+% nominal yields of LW
+data(:,39:44) = X(2:end,40:45);
+
+% Real rates of HPR and DKW
+data(:,45:48) = X(2:end,46:49);
+
 % Calculate slopes:
 data(:,end+1) = data(:,15) - data(:,11); % nominal 10y - 2y 
 data(:,end+1) = data(:,22) - data(:,18); % real 10y - 2y
@@ -71,12 +77,16 @@ data(:,end+1) = data(:,15) - data(:,30);
 data_names(end+1) = {'10-year nom. term premium'};
 
 % Add survey-based 10-year real term premium
-data(:,end+1) = data(:,37) - (data(:,31) - data(:,30));
-%data(:,end+1) = data(:,22) - (data(:,31) - data(:,30));
+%indic_REAL10 = find(strcmp(data_names,{'REAL10'}));
+indic_TIPSY10 = find(strcmp(data_names,{'TIPSY10'}));
+indic_BILL10 = find(strcmp(data_names,{'BILL10'}));
+indic_CPI10 = find(strcmp(data_names,{'CPI10'}));
+data(:,end+1) = data(:,indic_TIPSY10) - (data(:,indic_BILL10) - data(:,indic_CPI10));
 data_names(end+1) = {'SurveyRTP10'};
 
 % Add survey-based 10-year inflation risk premium
-data(:,end+1) = data(:,15) - data(:,37) - data(:,30);
+indic_YIELD10 = find(strcmp(data_names,{'YIELD10'}));
+data(:,end+1) = data(:,indic_YIELD10) - data(:,indic_TIPSY10) - data(:,indic_CPI10);
 data_names(end+1) = {'SurveyIRP10'};
 
 [num_obs, num_var] = size(data); % determine sample size (observations x variables)

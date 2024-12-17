@@ -113,7 +113,7 @@ ylabel('10-year inflation risk premium, in percent');
 xlabel('kappa');
 grid on;
 xlim([-1 0.5]);
-ylim([-2 4]);
+ylim([-3 5]);
 set(gca, 'FontSize', 12); % increase size of ticks labels
 box on;
 

@@ -9,8 +9,8 @@ dataTable = array2table(Data_StateSpace.dataset,...
 %Format = '%.4f'; % format of numbers
 
 % Compute descriptive statistics
-meanValues   = nanmean(Data_StateSpace.dataset);
-stdDevValues = nanstd(Data_StateSpace.dataset);
+meanValues   = mean(Data_StateSpace.dataset,'omitmissing');
+stdDevValues = std(Data_StateSpace.dataset,'omitmissing');
 minValues    = min(Data_StateSpace.dataset);
 maxValues    = max(Data_StateSpace.dataset);
 
